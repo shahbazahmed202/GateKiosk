@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Disrupt.com — Reception</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#eef1f6; font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1b2138; padding-bottom:60px; }
+  .topbar { height:6px; background:#2b2740; }
+  .shell { max-width:980px; margin:0 auto; padding:22px 18px 0; }
+
+  .header { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+  .back { width:40px; height:40px; border-radius:12px; background:#fff; border:1px solid #e6e9f0; cursor:pointer; display:none; align-items:center; justify-content:center; color:#4a5468; }
+  .back.show { display:flex; }
+  .logo { width:40px; height:40px; border-radius:12px; background:#2b2740; color:#fff; font-weight:800; font-size:20px; display:flex; align-items:center; justify-content:center; }
+  .brand { font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+  .brand span { color:#8f9fe8; }
+  .reason-badge { margin-left:auto; display:none; align-items:center; gap:6px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:8px 14px; border-radius:999px; color:#fff; }
+  .reason-badge.show { display:inline-flex; }
+  .reason-badge.lost { background:#e5484d; }
+  .reason-badge.forgot { background:#2f6bff; }
+
+  .hidden { display:none !important; }
+
+  /* welcome */
+  .welcome-wrap { text-align:center; padding-top:40px; }
+  .welcome-title { font-size:46px; font-weight:800; letter-spacing:-1px; }
+  .welcome-title span { color:#8f9fe8; }
+  .welcome-sub { font-weight:700; font-size:18px; margin-top:14px; }
+  .welcome-tag { text-transform:uppercase; letter-spacing:4px; font-size:12px; color:#8891a3; margin-top:6px; }
+  .choice-row { display:flex; gap:22px; justify-content:center; margin-top:38px; flex-wrap:wrap; }
+  .choice { background:#fff; border:1px solid #e9ecf3; border-radius:20px; padding:26px; width:400px; max-width:100%; text-align:left; box-shadow:0 1px 2px rgba(27,33,56,0.04); }
+  .choice-emp-head { display:flex; align-items:center; gap:12px; }
+  .choice-emp-icon { width:38px; height:38px; border-radius:10px; background:#eef1fd; color:#5566cf; display:flex; align-items:center; justify-content:center; }
+  .choice-emp-title { font-size:22px; font-weight:800; letter-spacing:0.5px; }
+  .choice-emp-note { color:#7b8494; margin:14px 0 16px; font-size:14px; }
+  .reason-btns { display:flex; gap:12px; }
+  .reason-btn { flex:1; border-radius:14px; padding:16px 10px; cursor:pointer; border:1px solid transparent; display:flex; flex-direction:column; align-items:center; gap:8px; font-weight:800; font-size:12px; letter-spacing:1px; font-family:inherit; }
+  .reason-btn.lost { background:#fdeaea; border-color:#f6cccc; color:#b5292d; }
+  .reason-btn.forgot { background:#eaf1fe; border-color:#cddffb; color:#2451c9; }
+  .reason-btn .ric { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; }
+  .reason-btn.lost .ric { background:#e5484d; }
+  .reason-btn.forgot .ric { background:#2f6bff; }
+  .choice-guest { display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; min-height:210px; }
+  .choice-guest .gic { width:70px; height:70px; border-radius:16px; background:#f0f2f7; color:#5c6579; display:flex; align-items:center; justify-content:center; margin-bottom:18px; }
+  .choice-guest .gtitle { font-size:30px; font-weight:800; letter-spacing:3px; color:#4a5468; }
+  .welcome-foot { margin-top:34px; display:flex; gap:22px; justify-content:center; }
+  .foot-link { background:none; border:none; color:#8891a3; font-weight:700; font-size:13px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:inherit; }
+  .foot-link:hover { color:#5c6579; }
+
+  .panel { background:#fff; border:1px solid #e9ecf3; border-radius:20px; padding:26px 26px 24px; box-shadow:0 1px 2px rgba(27,33,56,0.04); }
+  h1 { font-size:30px; font-weight:800; letter-spacing:-0.5px; margin:0 0 6px; }
+  .sub { color:#7b8494; margin:0 0 22px; font-size:15px; }
+
+  .label { display:block; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8891a3; margin-bottom:8px; }
+  .field { margin-bottom:16px; flex:1; min-width:0; }
+  input { width:100%; padding:13px 15px; border-radius:14px; border:1px solid #e6e9f0; background:#fff; font-size:15px; color:#3a4255; outline:none; font-weight:500; font-family:inherit; }
+  input::placeholder { color:#aab2c0; }
+  input:focus { border-color:#8f9fe8; box-shadow:0 0 0 3px rgba(143,159,232,0.15); }
+  input.big { font-size:18px; font-weight:700; padding:15px; }
+  .icon-wrap { position:relative; }
+  .icon-wrap svg { position:absolute; left:13px; top:13px; color:#aab2c0; }
+  .icon-wrap input { padding-left:38px; }
+  .row3,.row2 { display:flex; gap:14px; flex-wrap:wrap; }
+
+  .found { display:flex; align-items:center; gap:12px; background:#eafaf1; border:1px solid #bfe6cf; border-radius:14px; padding:14px 16px; margin-top:4px; }
+  .found .fic { width:34px; height:34px; border-radius:10px; background:#17a35c; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .found .ftitle { font-size:11.5px; font-weight:800; letter-spacing:1px; color:#12784c; text-transform:uppercase; }
+  .found .fsub { font-weight:700; color:#14663f; font-size:14px; margin-top:2px; }
+  .notfound { background:#fdf3e2; border-color:#f0dcb0; }
+  .notfound .fic { background:#d99413; }
+  .notfound .ftitle { color:#8a5d09; }
+  .notfound .fsub { color:#8a5d09; font-weight:500; }
+
+  .match { display:flex; align-items:center; justify-content:space-between; gap:12px; background:#e7f6ee; border:1px solid #bfe6cf; border-radius:14px; padding:12px 14px; margin-bottom:18px; font-size:14px; color:#14663f; flex-wrap:wrap; }
+  .match button { background:#0f7a4f; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-weight:700; font-size:13px; cursor:pointer; }
+
+  .seg { display:flex; gap:6px; background:#f3f5fa; padding:5px; border-radius:14px; width:fit-content; margin-bottom:8px; }
+  .seg button { display:flex; align-items:center; gap:7px; padding:9px 18px; border-radius:10px; border:none; background:transparent; color:#6a7488; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
+  .seg button.on { background:#fff; color:#2b2740; box-shadow:0 1px 3px rgba(27,33,56,0.1); }
+
+  .toggle { display:flex; align-items:center; gap:10px; background:#f3f5fa; border:1px solid #e6e9f0; border-radius:14px; padding:12px 14px; cursor:pointer; width:100%; font-family:inherit; }
+  .toggle.on { background:#eef1fd; border-color:#c8d1f6; }
+  .knob { width:38px; height:22px; border-radius:999px; background:#cdd4e2; position:relative; flex-shrink:0; transition:background .15s; }
+  .knob::after { content:''; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:999px; background:#fff; transition:left .15s; }
+  .toggle.on .knob { background:#8f9fe8; }
+  .toggle.on .knob::after { left:19px; }
+  .toggle .tlabel { font-size:14px; font-weight:600; color:#4a5468; }
+
+  .actions { display:flex; gap:12px; margin-top:8px; align-items:center; }
+  .primary { flex:1; display:flex; align-items:center; justify-content:center; gap:10px; padding:16px; border-radius:16px; border:none; cursor:pointer; color:#fff; font-size:15px; font-weight:800; letter-spacing:1px; background:linear-gradient(135deg,#8090ea,#a0aef0); box-shadow:0 6px 16px rgba(128,144,234,0.35); font-family:inherit; }
+  .authorize { background:#1f43d6; box-shadow:0 6px 16px rgba(31,67,214,0.3); }
+  .authorize:disabled { background:#c3cbe4; box-shadow:none; cursor:not-allowed; }
+  .ghost { padding:16px 22px; border-radius:16px; border:1px solid #e0e4ee; background:#fff; color:#6a7488; font-weight:700; cursor:pointer; font-family:inherit; }
+  button { transition:filter .12s; }
+  button:hover { filter:brightness(0.98); }
+
+  .rec-tabs { display:flex; gap:8px; margin-bottom:18px; border-bottom:1px solid #eceef4; flex-wrap:wrap; }
+  .rec-tab { padding:8px 4px; margin-right:12px; border:none; border-bottom:2px solid transparent; background:transparent; color:#8891a3; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
+  .rec-tab.on { color:#2b2740; border-bottom-color:#8f9fe8; }
+
+  .card { display:flex; align-items:center; gap:14px; background:#fbfcfe; border:1px solid #eceff5; border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+  .card .grow { flex:1; }
+  .card-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .card-name { font-weight:700; font-size:15.5px; }
+  .card-meta { display:flex; gap:14px; flex-wrap:wrap; color:#6a7488; font-size:13px; align-items:center; }
+  .card-time { display:flex; align-items:center; gap:5px; color:#9aa2b3; font-size:12px; margin-top:5px; }
+
+  .pill { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; }
+  .pill.blue { background:#eef1fd; color:#5566cf; }
+  .pill.green { background:#e7f6ee; color:#12784c; }
+  .pill.gray { background:#f0f2f7; color:#5c6579; }
+  .pill.muted { background:#f0f2f7; color:#9aa2b3; }
+  .pill.amber { background:#fdf3e2; color:#b47913; }
+  .pill.campus { background:#efe9fb; color:#6b4bc7; }
+  .pill.red { background:#fdeaea; color:#b5292d; }
+
+  .outbtn { display:flex; align-items:center; gap:6px; padding:9px 14px; border-radius:11px; border:1px solid #d7dcea; background:#fff; color:#4a5468; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; font-family:inherit; }
+  .delbtn { padding:9px 11px; border-radius:11px; border:1px solid #f0d6d8; background:#fff; color:#d24b52; cursor:pointer; }
+  .empty { text-align:center; color:#9aa2b3; padding:40px 20px; font-size:14px; line-height:1.6; }
+
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:8px; padding:12px 20px; border-radius:12px; color:#fff; font-weight:600; font-size:14px; box-shadow:0 8px 24px rgba(0,0,0,0.18); z-index:50; opacity:0; pointer-events:none; transition:opacity .2s; }
+  .toast.show { opacity:1; }
+  .toast.ok { background:#17915f; }
+  .toast.err { background:#d24b52; }
+
+  @media (max-width:640px){
+    .row3 > .field,.row2 > .field,.row2 > div { flex:1 1 100% !important; }
+    h1 { font-size:26px; }
+    .welcome-title { font-size:34px; }
+    .choice { width:100%; }
+  }
+  .nic-upload { display:inline-flex; align-items:center; gap:8px; padding:13px 18px; border-radius:14px; border:1px dashed #c8d1f6; background:#f7f8fd; color:#5566cf; font-weight:700; font-size:14px; cursor:pointer; }
+  .nic-upload:hover { background:#eef1fd; }
+  #nicPreview img { max-width:220px; border-radius:12px; margin-top:12px; border:1px solid #e6e9f0; display:block; }
+  .rec-thumb { width:60px; height:38px; object-fit:cover; border-radius:8px; border:1px solid #e6e9f0; }
+  .stars span { font-size:36px; cursor:pointer; color:#d7dce6; margin-right:4px; user-select:none; }
+  .stars span.on { color:#f5a623; }
+  .modal-bg { position:fixed; inset:0; background:rgba(20,24,40,0.45); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+  .modal-bg.show { display:flex; }
+  .modal { background:#fff; border-radius:20px; padding:28px; width:360px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.25); text-align:center; }
+  .modal h2 { margin:0 0 6px; font-size:22px; font-weight:800; }
+  .modal .msub { color:#7b8494; margin:0 0 18px; font-size:14px; }
+  .modal input { text-align:center; font-size:24px; letter-spacing:6px; font-weight:700; }
+  .modal .merr { color:#d24b52; font-size:13px; font-weight:600; min-height:18px; margin-top:8px; }
+  .modal .mbtns { display:flex; gap:10px; margin-top:16px; }
+  .reason-btn.sel { box-shadow:0 0 0 3px currentColor; }
+  #empReasonBtns { max-width:420px; }
+  .brandlogo { height:30px; border-radius:7px; display:block; }
+  .welcome-logo { height:58px; border-radius:12px; margin:0 auto 10px; display:block; max-width:90%; }
+  body::before { content:''; position:fixed; inset:0; z-index:-1; background:linear-gradient(120deg,#eef1f6,#e9edfb,#eef1f6,#f0ecfa,#eaf0f8); background-size:300% 300%; animation:bgshift 22s ease infinite; }
+  @keyframes bgshift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="shell">
+  <div class="header" id="header">
+    <button class="back" id="backBtn" title="Home">&#8592;</button>
+    <img class="brandlogo" src="data:image/png;base64,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" alt="Disrupt.com" />
+    <div class="reason-badge" id="reasonBadge"></div>
+  </div>
+
+  <!-- WELCOME -->
+  <div id="screen-welcome">
+    <div class="welcome-wrap">
+      <img class="welcome-logo" src="data:image/png;base64,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" alt="Disrupt.com" />
+      <div class="welcome-sub">Welcome to Karachi Office</div>
+
+      <div class="choice-row">
+        <div class="choice">
+          <div class="choice-emp-head">
+            <div class="choice-emp-icon">&#128100;</div>
+            <div class="choice-emp-title">EMPLOYEE</div>
+          </div>
+          <div class="choice-emp-note">Forgot or lost your card? Check in here</div>
+          <button id="empRfidBtn" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border-radius:14px;border:1px solid #cddffb;background:#eaf1fe;color:#2451c9;font-weight:800;font-size:14px;letter-spacing:1px;cursor:pointer;font-family:inherit;">&#128179; EMPLOYEE RFID CARD &rarr;</button>
+        </div>
+        <div class="choice choice-guest" id="guestChoice">
+          <div class="gic">&#127970;</div>
+          <div class="gtitle">GUEST</div>
+        </div>
+      </div>
+
+      <div class="welcome-foot">
+        <button class="foot-link" data-goto="courier">&#128230; Courier log</button>
+        <button class="foot-link" data-goto="records">&#128203; Records</button>
+        <button class="foot-link" data-goto="analytics">&#128202; Analytics</button>
+        <button class="foot-link" data-goto="feedback">&#11088; Guest feedback</button>
+        <button class="foot-link" data-goto="admin">&#128274; Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPLOYEE -->
+  <div class="panel hidden" id="screen-employee">
+    <h1>EMPLOYEE ENTRY</h1>
+    <p class="sub">Type your ID or name &mdash; we&rsquo;ll find your record automatically</p>
+    <div class="field">
+      <label class="label">Reason for card-less entry</label>
+      <div class="reason-btns" id="empReasonBtns">
+        <button class="reason-btn lost" data-reason="Card Lost"><span class="ric">&#9888;</span>CARD LOST</button>
+        <button class="reason-btn forgot" data-reason="Card Forgot"><span class="ric">&#128179;</span>CARD FORGOT</button>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="label">Employee ID</label>
+        <input id="eId" class="big" placeholder="e.g. 361" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label class="label">Full name</label>
+        <input id="eName" placeholder="Auto-filled from ID" autocomplete="off" />
+      </div>
+    </div>
+    <div id="eResult"></div>
+    <div class="field hidden" id="eCampusField" style="margin-top:18px;">
+      <label class="label">Campus for this entry <span style="text-transform:none;font-weight:500;color:#9aa2b3;">&mdash; change if the employee has moved</span></label>
+      <div class="seg" id="eCampusSeg">
+        <button data-campus="141-D" class="on">&#127970; 141-D</button>
+        <button data-campus="140-H">&#127970; 140-H</button>
+        <button data-campus="Dubai Office">&#127970; Dubai Office</button>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:22px;">
+      <button class="primary authorize" id="eAuthorize" disabled>AUTHORIZE ENTRY &rarr;</button>
+    </div>
+  </div>
+
+  <!-- GUEST -->
+  <div class="panel hidden" id="screen-guest">
+    <h1>GUEST ENTRY</h1>
+    <p class="sub">Welcome to Disrupt.com Karachi Office &mdash; please register the visit</p>
+    <div class="match hidden" id="matchBanner"><span id="matchText"></span><button id="loadMatch">Load details</button></div>
+    <div class="field">
+      <label class="label">Campus</label>
+      <div class="seg" id="gCampusSeg"><button data-campus="141-D" class="on">&#127970; 141-D</button><button data-campus="140-H">&#127970; 140-H</button></div>
+    </div>
+    <div class="field">
+      <label class="label">NIC photo <span style="text-transform:none;font-weight:500;color:#9aa2b3;">&mdash; tries to auto-fill name &amp; NIC number</span></label>
+      <label class="nic-upload" for="gNicPhoto">&#128247; Capture / upload NIC photo</label>
+      <input type="file" accept="image/*" capture="environment" id="gNicPhoto" style="display:none;" />
+      <div id="nicPreview"></div>
+      <div id="nicOcrStatus" class="card-time"></div>
+    </div>
+    <div class="field"><label class="label">Guest full name</label><input id="gName" placeholder="Your full name" /></div>
+    <div class="row3">
+      <div class="field"><label class="label">Contact number</label><div class="icon-wrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><input id="gPhone" placeholder="03xx-xxxxxxx" /></div></div>
+      <div class="field"><label class="label">CNIC number</label><input id="gCnic" placeholder="35202-1234567-1" /></div>
+      <div class="field"><label class="label">Person to meet</label><input id="gMeet" placeholder="Employee name" /></div>
+    </div>
+    <div class="field"><label class="label">Purpose of visit</label><input id="gPurpose" placeholder="Meeting, interview, delivery, vendor&hellip;" list="purposeList" autocomplete="off" /><datalist id="purposeList"><option value="Meeting"><option value="Interview"><option value="Delivery / Courier"><option value="Vendor / Supplier"><option value="Maintenance / Service"><option value="Official work"><option value="Personal"><option value="Other"></datalist></div>
+    <div class="row2">
+      <div class="field"><label class="label">Visitor card number</label><div class="icon-wrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><input id="gCard" placeholder="e.g. V-014" /></div></div>
+      <div class="field" style="display:flex; align-items:flex-end;"><button type="button" class="toggle" id="gRecurring"><span class="knob"></span><span class="tlabel">Save as recurring guest / vendor</span></button></div>
+    </div>
+    <div class="actions"><button class="ghost" id="gClear">Clear</button><button class="primary" id="gSubmit">REGISTER VISIT &rarr;</button></div>
+  </div>
+
+  <!-- COURIER -->
+  <div class="panel hidden" id="screen-courier">
+    <h1>COURIER LOG</h1>
+    <p class="sub">Record parcels and documents received or dispatched at the desk</p>
+    <div class="field"><label class="label">Campus</label><div class="seg" id="cCampusSeg"><button data-campus="141-D" class="on">&#127970; 141-D</button><button data-campus="140-H">&#127970; 140-H</button></div></div>
+    <div class="field"><label class="label">Direction</label><div class="seg" id="cDirSeg"><button data-dir="inbound" class="on">&#128229; Incoming</button><button data-dir="outbound">&#128228; Outgoing</button></div></div>
+    <div class="row2"><div class="field"><label class="label">Courier company</label><input id="cCompany" placeholder="TCS / Leopards / DHL&hellip;" /></div><div class="field"><label class="label">Tracking / AWB number</label><input id="cTrack" placeholder="e.g. 774100xxxxxx" /></div></div>
+    <div class="row2"><div class="field"><label class="label" id="cPartyLabel">Sender</label><input id="cParty" placeholder="Sender name / company" /></div><div class="field"><label class="label" id="cRecipLabel">Deliver to (employee)</label><input id="cRecipient" placeholder="Employee name" /></div></div>
+    <div class="row2"><div class="field"><label class="label">Logged by (front desk)</label><input id="cBy" placeholder="Your name" /></div><div class="field"><label class="label">Remarks (optional)</label><input id="cNote" placeholder="Fragile, needs signature&hellip;" /></div></div>
+    <div class="actions"><button class="primary" id="cSubmit">LOG PARCEL &rarr;</button></div>
+  </div>
+
+  <!-- RECORDS -->
+  <div class="panel hidden" id="screen-records">
+    <div class="rec-tabs">
+      <button class="rec-tab on" data-rec="visitors">Guests today</button>
+      <button class="rec-tab" data-rec="employees">Employees today</button>
+      <button class="rec-tab" data-rec="recurring">Recurring</button>
+      <button class="rec-tab" data-rec="feedback">Feedback</button>
+      <button class="rec-tab" data-rec="courier">Courier</button>
+    </div>
+    <div id="recSearch" class="hidden" style="margin-bottom:14px;"><div class="icon-wrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="recQuery" placeholder="Search saved guests by name, phone or CNIC" /></div></div>
+    <div id="recList"></div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="panel hidden" id="screen-admin">
+    <div id="adminGate">
+      <h1>ADMIN</h1>
+      <p class="sub">Enter the admin PIN to manage the employee list</p>
+      <div class="row2">
+        <div class="field"><label class="label">Admin PIN</label><input id="adminPin" type="password" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" /></div>
+        <div class="field" style="display:flex;align-items:flex-end;"><button class="primary authorize" id="adminUnlock" style="flex:none;padding:15px 26px;">UNLOCK &rarr;</button></div>
+      </div>
+    </div>
+    <div id="adminPanel" class="hidden">
+      <h1>EMPLOYEE ADMIN</h1>
+      <p class="sub"><b id="empCount">0</b> employees on record</p>
+      <div style="background:#f7f8fc;border:1px solid #eceef4;border-radius:16px;padding:18px;margin-bottom:18px;">
+        <div class="label" id="addFormTitle" style="margin-bottom:14px;">Add employee</div>
+        <div class="row3">
+          <div class="field"><label class="label">Code</label><input id="aCode" placeholder="e.g. 512" autocomplete="off" /></div>
+          <div class="field"><label class="label">Employee name</label><input id="aName" placeholder="Full name" autocomplete="off" /></div>
+          <div class="field"><label class="label">Location</label><input id="aLoc" placeholder="141-D / 140-H / Dubai Office" list="locList" autocomplete="off" /><datalist id="locList"><option value="141-D"><option value="140-H"><option value="Dubai Office"></datalist></div>
+        </div>
+        <div class="actions" style="margin-top:2px;">
+          <button class="ghost" id="aCancel" style="display:none;">Cancel</button>
+          <button class="primary" id="aSave" style="flex:none;padding:14px 26px;">Add employee</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+        <button class="outbtn" id="aExport">&#11015; Export CSV (backup)</button>
+        <label class="outbtn" style="cursor:pointer;"><input id="aImport" type="file" accept=".csv" style="display:none;" />&#11014; Import CSV&hellip;</label>
+        <button class="outbtn" id="aPinBtn">&#128273; Change PIN</button>
+        <button class="delbtn" id="aReset" style="width:auto;padding:9px 14px;font-weight:700;">Reset to original list</button>
+      </div>
+      <div style="background:#f7f8fc;border:1px solid #eceef4;border-radius:16px;padding:16px;margin-bottom:18px;">
+        <div class="label" style="margin-bottom:10px;">Google Sheet sync <span style="text-transform:none;font-weight:500;color:#9aa2b3;">&mdash; safety backup of guest + NIC data</span></div>
+        <div class="row2">
+          <div class="field" style="margin:0;"><input id="sheetUrl" placeholder="Paste Apps Script Web App URL (ends with /exec)" autocomplete="off" /></div>
+          <div class="field" style="margin:0;display:flex;gap:8px;align-items:flex-end;"><button class="primary" id="sheetSave" style="flex:none;padding:13px 22px;">Save</button><button class="outbtn" id="sheetTest">Test</button></div>
+        </div>
+        <div class="card-time" id="sheetStatus" style="margin-top:8px;"></div>
+      </div>
+      <div class="icon-wrap" style="margin-bottom:14px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="aSearch" placeholder="Search employees by code or name" autocomplete="off" />
+      </div>
+      <div id="aList"></div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div class="panel hidden" id="screen-feedback">
+    <h1>FACILITY FEEDBACK</h1>
+    <p class="sub">How was your visit? Your feedback helps us improve our facilities.</p>
+    <div class="field"><label class="label">Campus</label><div class="seg" id="fCampusSeg"><button data-campus="141-D" class="on">&#127970; 141-D</button><button data-campus="140-H">&#127970; 140-H</button><button data-campus="Dubai Office">&#127970; Dubai Office</button></div></div>
+    <div class="field"><label class="label">Overall rating</label><div id="fStars" class="stars"></div></div>
+    <div class="field"><label class="label">Comments (optional)</label><input id="fComment" placeholder="Anything we can improve?" /></div>
+    <div class="field"><label class="label">Your name (optional)</label><input id="fName" placeholder="Optional" /></div>
+    <div class="actions"><button class="primary" id="fSubmit">SUBMIT FEEDBACK &rarr;</button></div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="panel hidden" id="screen-analytics">
+    <h1>ANALYTICS</h1>
+    <p class="sub" id="anMonth">This month</p>
+    <div id="anBody"></div>
+  </div>
+  <div class="modal-bg" id="pcModal">
+    <div class="modal">
+      <div style="font-size:36px;margin-bottom:6px;">&#128274;</div>
+      <h2 id="pcTitle">Enter passcode</h2>
+      <div class="msub" id="pcSub">This section is passcode protected</div>
+      <input id="pcInput" type="password" inputmode="numeric" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" />
+      <div class="merr" id="pcErr"></div>
+      <div class="mbtns"><button class="ghost" id="pcCancel" style="flex:1;">Cancel</button><button class="primary" id="pcOk" style="flex:1;">Unlock</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var EMPLOYEES = {"1941":{"n":"Aakash Vicktor","l":"140-H"},"247":{"n":"Aamar Ali","l":"140-H"},"3364":{"n":"Aamir Sattar","l":"141-D"},"2":{"n":"Aaqib Gadit","l":"141-D"},"1847":{"n":"Abdul Ali","l":"140-H"},"2637":{"n":"Abdul Ali Khan","l":"141-D"},"3118":{"n":"Abdul Bari Memon","l":"141-D"},"3526":{"n":"Abdul Basit","l":"141-D"},"3486":{"n":"Abdul Basit","l":"141-D"},"777":{"n":"Abdul Basit","l":"140-H"},"3473":{"n":"Abdul Hai","l":"141-D"},"2177":{"n":"Abdul Haseeb","l":"140-H"},"2126":{"n":"Abdul Haseeb","l":"140-H"},"2472":{"n":"Abdul Kabeer","l":"141-D"},"3554":{"n":"Abdul Karim","l":"140-H"},"898":{"n":"Abdul Mateen Khan","l":"140-H"},"3396":{"n":"Abdul Moiz Khan","l":"141-D"},"30015":{"n":"Abdul Rafay","l":"140-H"},"623":{"n":"Abdul Rafay Gadit","l":"140-H"},"2627":{"n":"Abdul Rehman","l":"140-H"},"1289":{"n":"Abdul Talha Khan","l":"140-H"},"3533":{"n":"Abdullah Jawed Makani","l":"140-H"},"3553":{"n":"Abdullah Rehman Meer","l":"Dubai Office"},"3259":{"n":"Abdullah Sheikh","l":"140-H"},"3546":{"n":"Abdur Rehman","l":"140-H"},"3174":{"n":"Abdur Rehman Sheikh","l":"141-D"},"704":{"n":"Adeeb Aslam","l":"140-H"},"3471":{"n":"Adeel Ahmed","l":"141-D"},"105":{"n":"Adeel Shafique","l":"141-D"},"2361":{"n":"Adil Ahsan Ali","l":"141-D"},"3316":{"n":"Ahmed Abid","l":"140-H"},"1343":{"n":"Ahsan Hussain","l":"140-H"},"398":{"n":"Ahsan Nusrat","l":"141-D"},"2610":{"n":"Aiman Ikram","l":"140-H"},"2694":{"n":"Akmal Hameed Kayani","l":"141-D"},"3447":{"n":"Alemsah Ozturk","l":"141-D"},"793":{"n":"Ali Akbar","l":"140-H"},"3167":{"n":"Ali Azaz Alam","l":"140-H"},"3449":{"n":"Ali Bin Arshad","l":"140-H"},"2009":{"n":"Ali Hassan","l":"140-H"},"T00045":{"n":"Ali Jafar","l":"140-H"},"3021":{"n":"Ali Majid","l":"140-H"},"2059":{"n":"Ali Muhammad Hussain","l":"140-H"},"3365":{"n":"Ali Samir Oosman","l":"141-D"},"1911":{"n":"Ali Turab","l":"141-D"},"2060":{"n":"Alicia Cecilia Fonseca","l":"140-H"},"2355":{"n":"Alifya Mustafa","l":"140-H"},"2500":{"n":"Alika Nasir","l":"141-D"},"677":{"n":"Alishan Kamruddin Merchant","l":"140-H"},"3534":{"n":"Aliza Ikram Ghouri","l":"140-H"},"2167":{"n":"Allaha Dita","l":"140-H"},"1270":{"n":"Amir Ali","l":"140-H"},"1937":{"n":"Amir Raza","l":"141-D"},"1301":{"n":"Amit Kumar","l":"140-H"},"3009":{"n":"Ammar Ali Danish","l":"141-D"},"1409":{"n":"Ammar Gadit","l":"140-H"},"3497":{"n":"Ammar Hasan Rizvi","l":"141-D"},"2512":{"n":"Ammarah Abid","l":"140-H"},"T00032":{"n":"Amna Anwar","l":"140-H"},"1836":{"n":"Anam Khalid","l":"140-H"},"243":{"n":"Anus Tarique","l":"141-D"},"2595":{"n":"Anzeela Fatima","l":"140-H"},"1984":{"n":"Aqib Rasool Shah","l":"141-D"},"148":{"n":"Aqib Zafar","l":"140-H"},"1910":{"n":"Arbaz Hussain","l":"141-D"},"3552":{"n":"Arham Navaid","l":"141-D"},"3468":{"n":"Ariba Shahid","l":"141-D"},"3253":{"n":"Arif Ur Rehman","l":"140-H"},"42":{"n":"Arqam Gadit","l":"140-H"},"3403":{"n":"Arsal Raza Imam","l":"140-H"},"2679":{"n":"Arsal Ur Rehman","l":"140-H"},"3243":{"n":"Arsalan Iqbal","l":"140-H"},"1503":{"n":"Arsalan Mirza","l":"140-H"},"2640":{"n":"Arsalan Rashid","l":"140-H"},"3466":{"n":"Arsalan Yousuf","l":"141-D"},"638":{"n":"Arshad Hussain","l":"140-H"},"3372":{"n":"Asad Ahmed","l":"141-D"},"2383":{"n":"Asad Hanif","l":"141-D"},"3532":{"n":"Asad Iqbal","l":"140-H"},"3380":{"n":"Asad Khan","l":"140-H"},"T00055":{"n":"Asad Mahmood","l":"141-D"},"3475":{"n":"Asad Tariq","l":"141-D"},"3386":{"n":"Asharib","l":"141-D"},"3524":{"n":"Ashmal Ur Rehman","l":"141-D"},"2629":{"n":"Asma Arshad","l":"141-D"},"3435":{"n":"Asma Rasheed","l":"140-H"},"1859":{"n":"Atif Anis Khan","l":"141-D"},"1737":{"n":"Atif Farooqui","l":"140-H"},"1733":{"n":"Atif Mehboob","l":"140-H"},"T00054":{"n":"Avinash Kumar","l":"141-D"},"2104":{"n":"Ayesha Aijaz","l":"141-D"},"3436":{"n":"Ayesha Arif Abbasi","l":"141-D"},"2373":{"n":"Ayesha Mehfooz","l":"141-D"},"2197":{"n":"Ayush Kishan","l":"140-H"},"2166":{"n":"Azhar Abbas","l":"140-H"},"3451":{"n":"Bilal Amjad","l":"141-D"},"242":{"n":"Bilal Asif","l":"141-D"},"382":{"n":"Bilal Mohammad Qazi","l":"140-H"},"886":{"n":"Bilal Naiyer","l":"141-D"},"387":{"n":"Bilal Saleem","l":"140-H"},"2682":{"n":"Bisma","l":"141-D"},"2097":{"n":"Calvin D Souza","l":"141-D"},"2100":{"n":"Dabeer Arshad","l":"141-D"},"1383":{"n":"Danish Amjad","l":"141-D"},"2008":{"n":"Danish Khan","l":"140-H"},"2337":{"n":"Danish Safel","l":"141-D"},"1650":{"n":"Deepak Kumar","l":"140-H"},"3024":{"n":"Delwyn Lawrence Joseph Flukes","l":"141-D"},"3358":{"n":"Dhanesh Kumar","l":"141-D"},"2409":{"n":"Dua Raza Khan","l":"141-D"},"3477":{"n":"Dua Zehra","l":"141-D"},"2412":{"n":"Duresham Aijaz","l":"141-D"},"2789":{"n":"Emre Tok","l":"140-H"},"2096":{"n":"Fahad Ahmed","l":"140-H"},"1929":{"n":"Fahad Idrees","l":"140-H"},"2157":{"n":"Fahad Iqbal","l":"140-H"},"3507":{"n":"Fahad Shafique","l":"141-D"},"1174":{"n":"Faham Hanif","l":"140-H"},"3153":{"n":"Fahim Uddin Qureshi","l":"141-D"},"3088":{"n":"Faisal Tahir","l":"141-D"},"3310":{"n":"Faiza Ehsan","l":"141-D"},"2277":{"n":"Fakhar Abdullah","l":"141-D"},"681":{"n":"Faraz Ahmed Khan","l":"140-H"},"2282":{"n":"Faraz Ali","l":"141-D"},"60":{"n":"Faraz Ali Khan","l":"140-H"},"3033":{"n":"Farid Ur Rehman","l":"140-H"},"1977":{"n":"Farooq Hussain","l":"140-H"},"3483":{"n":"Fatima Hussain","l":"141-D"},"969":{"n":"Fawad Ahmed Khan","l":"141-D"},"3036":{"n":"Fizza Zain","l":"141-D"},"2797":{"n":"Fuad Ahmed Hasni","l":"141-D"},"3000":{"n":"Gaditek Meetings","l":"140-H"},"1912":{"n":"Geeta","l":"140-H"},"T00033":{"n":"Ghulam Moin Uddin","l":"140-H"},"2580":{"n":"Habib Khan","l":"140-H"},"226":{"n":"Hadi Khan","l":"140-H"},"739":{"n":"Hafiz Abdul Saboor Khan","l":"140-H"},"3419":{"n":"Hamad Muhammad Salim","l":"140-H"},"3387":{"n":"Hammad Ali","l":"140-H"},"1166":{"n":"Hammad Bin Farooq","l":"140-H"},"1171":{"n":"Hammad Jawaid","l":"141-D"},"7903496":{"n":"Hammas Sohail","l":"140-H"},"2680":{"n":"Hamza Ahmed Sheikh","l":"141-D"},"1243":{"n":"Hamza Ali","l":"141-D"},"3135":{"n":"Hamza Shaikh","l":"140-H"},"2124":{"n":"Haram","l":"140-H"},"3037":{"n":"Hareem Fatima","l":"141-D"},"525":{"n":"Haris Masih","l":"140-H"},"2702":{"n":"Hasan Akhter","l":"141-D"},"3395":{"n":"Haseeb Gulraiz","l":"141-D"},"3142":{"n":"Haseeb Khan","l":"141-D"},"1761":{"n":"Hassaan Saleem","l":"140-H"},"497":{"n":"Hassan Ali","l":"141-D"},"1520":{"n":"Hassan Dad Khan","l":"141-D"},"2162":{"n":"Hassan Rasool","l":"140-H"},"3503":{"n":"Hassanain Anver","l":"Dubai Office"},"2173":{"n":"Hira Haleem","l":"141-D"},"3558":{"n":"Huda Feroz","l":"140-H"},"1986":{"n":"Hunain Amir","l":"141-D"},"3474":{"n":"Ilian Hristov","l":"141-D"},"3263":{"n":"Imran Mehtab","l":"140-H"},"1438":{"n":"Imtiaz Hussain","l":"140-H"},"703":{"n":"Isfand Yar Khan","l":"140-H"},"3460":{"n":"Ismail Qayyum","l":"140-H"},"3482":{"n":"Izhar Ul Haq Khan","l":"141-D"},"3555":{"n":"Jackson Scalise","l":"Dubai Office"},"435":{"n":"Jamal Ahmed","l":"141-D"},"2479":{"n":"Javeria Sami","l":"141-D"},"1401":{"n":"Jawed Bhatti","l":"140-H"},"3428":{"n":"Jinsaar Ali","l":"141-D"},"613":{"n":"Johnson son","l":"140-H"},"3453":{"n":"Jonathan Philipp Doerr","l":"141-D"},"545":{"n":"Junaid Ahmed Siddiqui","l":"140-H"},"1551":{"n":"Junaid Shariff","l":"141-D"},"776":{"n":"Kalash Nat","l":"140-H"},"1525":{"n":"Kamran Abdul Ghaffar","l":"141-D"},"3164":{"n":"Kamran Haider Awan","l":"140-H"},"3537":{"n":"Kamran Ullah","l":"141-D"},"1274":{"n":"Karam Al Taous","l":"141-D"},"2415":{"n":"Kashif Ahmed","l":"140-H"},"3415":{"n":"Kashif Siddiqui","l":"141-D"},"3489":{"n":"Katarzyna Kasia Marta Kosior","l":"Dubai Office"},"2341":{"n":"Khadija Zaman","l":"140-H"},"2474":{"n":"Khalid Roopi","l":"140-H"},"1870":{"n":"Khizer Kamran Haroon","l":"141-D"},"3334":{"n":"Komal Raj","l":"141-D"},"3516":{"n":"Kulsoom Awan","l":"141-D"},"3448":{"n":"Laiba Atiq","l":"140-H"},"1893":{"n":"Lakhan Jajot","l":"140-H"},"1883":{"n":"Lata Vicky","l":"140-H"},"4":{"n":"Life Announcement","l":"140-H"},"3521":{"n":"Mahsa Tehrani","l":"Dubai Office"},"2553":{"n":"Mahtab Ahmed","l":"140-H"},"3134":{"n":"Mahum Fatima Khan","l":"140-H"},"204":{"n":"Majid Mushtaq","l":"141-D"},"3377":{"n":"Makhdoom Sharif","l":"140-H"},"2845":{"n":"Mamoon Ur Rasheed","l":"140-H"},"2638":{"n":"Mansoor Ul Hasan","l":"140-H"},"3543":{"n":"Maria Rashdi","l":"140-H"},"2431":{"n":"Maria Syed","l":"140-H"},"162":{"n":"Masab Gadit","l":"140-H"},"T00046":{"n":"Mehdiya Rizvi","l":"140-H"},"3513":{"n":"Minhaj Us Salam Khan","l":"141-D"},"3523":{"n":"Mirza M Baqar Raza Baig","l":"141-D"},"377":{"n":"Mobashir Hassan Haidery","l":"140-H"},"3465":{"n":"Mobeen Ahmed","l":"140-H"},"3559":{"n":"Mohammad Fawad Akber","l":"Dubai Office"},"3499":{"n":"Mohsin Mujeeb","l":"141-D"},"3140":{"n":"Mohsin Naveed","l":"140-H"},"2559":{"n":"Moiz Ali","l":"140-H"},"T00035":{"n":"Muhammad","l":"140-H"},"687":{"n":"Muhammad Abdur Rehman Siddiqui","l":"140-H"},"1711":{"n":"Muhammad Abid","l":"141-D"},"2435":{"n":"Muhammad Abrar","l":"140-H"},"3556":{"n":"Muhammad Adil","l":"140-H"},"13":{"n":"Muhammad Adnan","l":"140-H"},"3467":{"n":"Muhammad Affan","l":"140-H"},"991":{"n":"Muhammad Ahmer Jamil","l":"140-H"},"1139":{"n":"Muhammad Akram Khan","l":"140-H"},"2281":{"n":"Muhammad Ali Ghaffar","l":"140-H"},"768":{"n":"Muhammad Ali Khan","l":"140-H"},"1769":{"n":"Muhammad Ali Makati","l":"141-D"},"3528":{"n":"Muhammad Ammar","l":"140-H"},"2081":{"n":"Muhammad Anas","l":"141-D"},"1464":{"n":"Muhammad Anas Adeel Khan","l":"140-H"},"3122":{"n":"Muhammad Anas Qureshi","l":"140-H"},"607":{"n":"Muhammad Annus","l":"141-D"},"3541":{"n":"Muhammad Asad","l":"140-H"},"2263":{"n":"Muhammad Asad","l":"140-H"},"3538":{"n":"Muhammad Asad Tariq","l":"141-D"},"1617":{"n":"Muhammad Asif","l":"140-H"},"2304":{"n":"Muhammad Asim","l":"141-D"},"278":{"n":"Muhammad Awais","l":"140-H"},"3308":{"n":"Muhammad Bassalat Bin Sajjad","l":"140-H"},"2209":{"n":"Muhammad Bilal","l":"140-H"},"3518":{"n":"Muhammad Bilal Arif","l":"140-H"},"3478":{"n":"Muhammad Bilal Haneef Qureshi","l":"141-D"},"3405":{"n":"Muhammad Fahad","l":"140-H"},"847":{"n":"Muhammad Faisal Ansari","l":"140-H"},"1458":{"n":"Muhammad Faizan","l":"141-D"},"2556":{"n":"Muhammad Fareed","l":"140-H"},"3522":{"n":"Muhammad Farzan","l":"141-D"},"3495":{"n":"Muhammad Furqan","l":"141-D"},"2099":{"n":"Muhammad Furqan","l":"140-H"},"2655":{"n":"Muhammad Hanan Tanvir","l":"140-H"},"2112":{"n":"Muhammad Haris","l":"140-H"},"827":{"n":"Muhammad Haris Shahid","l":"140-H"},"3455":{"n":"Muhammad Haris Siddiqui","l":"141-D"},"2854":{"n":"Muhammad Hassaan","l":"141-D"},"822":{"n":"Muhammad Hassaan Mustafa","l":"140-H"},"3429":{"n":"Muhammad Hassan","l":"140-H"},"303":{"n":"Muhammad Hassan","l":"140-H"},"217":{"n":"Muhammad Hassan Ali","l":"140-H"},"2653":{"n":"Muhammad Hassan Baig","l":"141-D"},"3545":{"n":"Muhammad Hassan Saleem","l":"141-D"},"2310":{"n":"Muhammad Hussain","l":"141-D"},"2625":{"n":"Muhammad Hussain Shaikh","l":"140-H"},"3439":{"n":"Muhammad Huzaifa Rashid","l":"140-H"},"1338":{"n":"Muhammad Ibraheem Khan","l":"140-H"},"3480":{"n":"Muhammad Ibtehaj Amir","l":"140-H"},"1532":{"n":"Muhammad Ikram Siddiqui","l":"141-D"},"499":{"n":"Muhammad Jameel Akhter","l":"140-H"},"209":{"n":"Muhammad Javed Khan","l":"140-H"},"29":{"n":"Muhammad Jebran Rasheed","l":"140-H"},"3328":{"n":"Muhammad Junaid","l":"140-H"},"3156":{"n":"Muhammad Kashif","l":"141-D"},"3026":{"n":"Muhammad Khaleeq Kamali","l":"141-D"},"3078":{"n":"Muhammad Khawaja Faaz Azeem","l":"141-D"},"3001":{"n":"Muhammad Malhan Khan","l":"140-H"},"3520":{"n":"Muhammad Mizyal Wahid Iqbal","l":"140-H"},"3512":{"n":"Muhammad Mohsin","l":"Dubai Office"},"1556":{"n":"Muhammad Mohsin Aslam","l":"141-D"},"3494":{"n":"Muhammad Moin","l":"141-D"},"2666":{"n":"Muhammad Mubushir Siddiqui","l":"140-H"},"3044":{"n":"Muhammad Murtaza","l":"140-H"},"3488":{"n":"Muhammad Nameer Anjum","l":"141-D"},"405":{"n":"Muhammad Naseem Khan","l":"140-H"},"1302":{"n":"Muhammad Omer Farooq","l":"140-H"},"3491":{"n":"Muhammad Omer Farooq Bhutta","l":"140-H"},"85":{"n":"Muhammad Ovais","l":"140-H"},"3362":{"n":"Muhammad Owais Ansari","l":"141-D"},"431":{"n":"Muhammad Owais Jamal","l":"141-D"},"2801":{"n":"Muhammad Owaiz","l":"141-D"},"3510":{"n":"Muhammad Rafi ul Huda","l":"141-D"},"3019":{"n":"Muhammad Ramzan","l":"141-D"},"2344":{"n":"Muhammad Rao","l":"141-D"},"2935":{"n":"Muhammad Rayyan Bin Riaz","l":"140-H"},"3367":{"n":"Muhammad Raza Bin Abid","l":"140-H"},"3178":{"n":"Muhammad Rohail","l":"140-H"},"2621":{"n":"Muhammad Roshail Khan","l":"140-H"},"2624":{"n":"Muhammad Saad","l":"141-D"},"3438":{"n":"Muhammad Saad Yasin","l":"140-H"},"3018":{"n":"Muhammad Sajjad Solangi","l":"141-D"},"2212":{"n":"Muhammad Salah Uddin","l":"140-H"},"562":{"n":"Muhammad Salman Shahid","l":"140-H"},"3481":{"n":"Muhammad Salman Ul Haq","l":"141-D"},"406":{"n":"Muhammad Saqib Rizwan","l":"140-H"},"655":{"n":"Muhammad Shahid khan","l":"140-H"},"1621":{"n":"Muhammad Shahnawaz Khan","l":"141-D"},"2208":{"n":"Muhammad Shahzad","l":"140-H"},"1388":{"n":"Muhammad Shayan","l":"140-H"},"1646":{"n":"Muhammad Shoaib","l":"141-D"},"1898":{"n":"Muhammad Shoaib Iqbal","l":"141-D"},"T00042":{"n":"Muhammad Taha Shaheen","l":"141-D"},"3441":{"n":"Muhammad Taha Tanveer","l":"140-H"},"2334":{"n":"Muhammad Taimoor","l":"140-H"},"2867":{"n":"Muhammad Talha Saleem","l":"140-H"},"1785":{"n":"Muhammad Umair","l":"141-D"},"3515":{"n":"Muhammad Umair Tariq","l":"141-D"},"3092":{"n":"Muhammad Umar Bin Tariq","l":"141-D"},"3425":{"n":"Muhammad Usama","l":"141-D"},"3315":{"n":"Muhammad Usman","l":"140-H"},"2507":{"n":"Muhammad Usman Zakir","l":"141-D"},"2980":{"n":"Muhammad Uzair Afzaal","l":"140-H"},"2380":{"n":"Muhammad Zafar Ul Haq","l":"141-D"},"1949":{"n":"Muhammad Zeeshan","l":"141-D"},"2708":{"n":"Muhammad Zeeshan Ahmed","l":"141-D"},"1648":{"n":"Muhammad Zulqarnain","l":"140-H"},"2709":{"n":"Mujtaba Sheikh","l":"141-D"},"3531":{"n":"Mukhtar Ahmed","l":"140-H"},"3485":{"n":"Munam Tariq","l":"141-D"},"763":{"n":"Munib Ahmed Siddiqui","l":"140-H"},"762":{"n":"Munib Shaukat","l":"140-H"},"2322":{"n":"Muniba Saeed","l":"141-D"},"3321":{"n":"Murtaza Abde Ali Karimi","l":"140-H"},"68":{"n":"Musab Ali Ibrahim","l":"140-H"},"3397":{"n":"Muskan Amin Virani","l":"140-H"},"2434":{"n":"Mustafa Kamal","l":"140-H"},"1300":{"n":"Mustafa Khan","l":"140-H"},"3003":{"n":"Mustafa Khilji","l":"141-D"},"3445":{"n":"Mustafa Mubashir","l":"141-D"},"3080":{"n":"Muzamil Ahmed","l":"141-D"},"3238":{"n":"Muzammal Saeed","l":"141-D"},"1747":{"n":"Muzammil Munir","l":"141-D"},"3442":{"n":"Nabeel Aftab","l":"141-D"},"2376":{"n":"Naseem Uddin","l":"140-H"},"3416":{"n":"Naseem Z Siddiqui","l":"140-H"},"2814":{"n":"Naveed Ali","l":"141-D"},"2456":{"n":"Neelam Zareen Khan","l":"140-H"},"2254":{"n":"Nimra Iqbal","l":"140-H"},"1609":{"n":"Nisha Babu","l":"140-H"},"1642":{"n":"Nofil Bin Arif","l":"141-D"},"2286":{"n":"Noor Khan","l":"141-D"},"3498":{"n":"Nurkan Kirkan","l":"141-D"},"1980":{"n":"Orangzaib Hanif","l":"140-H"},"1048":{"n":"Osama Usman","l":"141-D"},"3536":{"n":"Osman Onur Erdogan","l":"Dubai Office"},"3504":{"n":"Owais Ahmed Khan","l":"Dubai Office"},"2800":{"n":"Owais Jamal","l":"141-D"},"1420":{"n":"Owvais Azhar Ali Shah","l":"140-H"},"3550":{"n":"Pearce Clune","l":"Dubai Office"},"3514":{"n":"Philipp Caspers Pabst","l":"Dubai Office"},"3344":{"n":"Pir Ahmed Zia","l":"141-D"},"3459":{"n":"Qazi Naseer Uddin Nasir","l":"141-D"},"167":{"n":"Qazi Sikandar Raza","l":"141-D"},"863":{"n":"Raees Uddin","l":"140-H"},"3420":{"n":"Raja Jawad Ali Khan","l":"140-H"},"1322":{"n":"Raju Anees","l":"140-H"},"1770":{"n":"Ravi Kishan","l":"141-D"},"3487":{"n":"Rayyan Zain","l":"141-D"},"3535":{"n":"Raza Munir","l":"Dubai Office"},"3081":{"n":"Rekha Chawriya","l":"141-D"},"3370":{"n":"Rizwan Ahmad Bhatti","l":"140-H"},"65":{"n":"Rohan Ahmed Hashmi","l":"140-H"},"3461":{"n":"Roshaan Ahmed Siddiqui","l":"140-H"},"3551":{"n":"Rosser Lewis Jones","l":"Dubai Office"},"2134":{"n":"Rukhsar Anwer","l":"140-H"},"2695":{"n":"Saad Ahmed","l":"140-H"},"28":{"n":"Saad Gadit","l":"140-H"},"3525":{"n":"Saad Habib Khan","l":"141-D"},"1565":{"n":"Saad Malik","l":"141-D"},"3493":{"n":"Saad Mazhar","l":"141-D"},"3117":{"n":"Saad Ur Rehman","l":"141-D"},"2686":{"n":"Saba Laghari","l":"141-D"},"3120":{"n":"Sadeem Sattar","l":"141-D"},"2092":{"n":"Sadia Shah","l":"140-H"},"2369":{"n":"Sagar Chand","l":"140-H"},"2806":{"n":"Sahib Ali","l":"141-D"},"3333":{"n":"Sahib Ur Rehman","l":"141-D"},"1386":{"n":"Saif Uddin","l":"140-H"},"2296":{"n":"Sajwar Sohail","l":"141-D"},"1344":{"n":"Saleem Kumar","l":"140-H"},"335":{"n":"Salman Khan","l":"140-H"},"1640":{"n":"Sameed Aijaz Ahmed Khan","l":"140-H"},"3457":{"n":"Sameer Khan","l":"141-D"},"2145":{"n":"Samir Yawar","l":"140-H"},"629":{"n":"Sanjay singh","l":"140-H"},"1622":{"n":"Sanober Syed","l":"140-H"},"2133":{"n":"Sara Jamal","l":"140-H"},"2574":{"n":"Sehrish Syed","l":"140-H"},"3335":{"n":"Shah Zaman Aftab","l":"140-H"},"223":{"n":"Shaharyar Asgher","l":"141-D"},"361":{"n":"Shahbaz Ahmed","l":"141-D"},"T00036":{"n":"Shaheer Beig","l":"140-H"},"1411":{"n":"Shaheer Gadit","l":"141-D"},"2302":{"n":"Shaheryar Awan","l":"141-D"},"1028":{"n":"Shahroz Asghar","l":"140-H"},"2821":{"n":"Shahzaib Ahmed","l":"140-H"},"3549":{"n":"Shajee Hamid Hanfi","l":"141-D"},"3511":{"n":"Shamroze Nasir","l":"141-D"},"993":{"n":"Shan","l":"140-H"},"3529":{"n":"Sharayar Farooqui","l":"141-D"},"198":{"n":"Shariq Ahmed Hashmi","l":"141-D"},"2068":{"n":"Sharjeel Nadeem","l":"140-H"},"2700":{"n":"Sharmeen Saleem","l":"141-D"},"1087":{"n":"Shayan Rais","l":"141-D"},"210":{"n":"Shehroz Ali Qureshi","l":"140-H"},"837":{"n":"Shehroz Azeem Khan","l":"141-D"},"2298":{"n":"Shehroz Hussain","l":"141-D"},"1072":{"n":"Sheikh Ehsan Ul Haque","l":"140-H"},"2406":{"n":"Shoaib","l":"141-D"},"648":{"n":"Shoaib Usman","l":"141-D"},"2992":{"n":"Simran juriasinghani","l":"141-D"},"1978":{"n":"Sohail Khan","l":"140-H"},"360":{"n":"Suleman Nazar","l":"140-H"},"3384":{"n":"Sunny Souno","l":"140-H"},"2414":{"n":"Syed Asghar Ali","l":"140-H"},"3373":{"n":"Syed Ashar Rashidi","l":"141-D"},"2688":{"n":"Syed Danish Ali","l":"140-H"},"2475":{"n":"Syed Faizan Ahmed","l":"141-D"},"740":{"n":"Syed Fazal Shah","l":"140-H"},"1555":{"n":"Syed Hammad Ahmed","l":"140-H"},"3090":{"n":"Syed Hammad Ali","l":"141-D"},"2356":{"n":"Syed Imad Uddin","l":"140-H"},"2647":{"n":"Syed Irtaza Alam","l":"141-D"},"757":{"n":"Syed Jamil Aziz","l":"140-H"},"2566":{"n":"Syed Mehdi Raza Zaidi","l":"140-H"},"2252":{"n":"Syed Mohammad Mustafa Haider","l":"141-D"},"3484":{"n":"Syed Mohammad Ovais Shah","l":"141-D"},"3171":{"n":"Syed Mohsin Ahmed","l":"140-H"},"737":{"n":"Syed Muhammad Abbas Raza Zaidi","l":"141-D"},"2323":{"n":"Syed Muhammad Ahsan Ali Hashmi","l":"140-H"},"3496":{"n":"Syed Muhammad Ali Raza","l":"141-D"},"2571":{"n":"Syed Muhammad Hamza","l":"141-D"},"2506":{"n":"Syed Muhammad Nazimuddin","l":"141-D"},"1307":{"n":"Syed Muhammad Rizwan","l":"140-H"},"3539":{"n":"Syed Muhammad Sherjeel","l":"140-H"},"2514":{"n":"Syed Muhammad Usama Sohail","l":"140-H"},"1177":{"n":"Syed Muhammad Zain Mustijab","l":"141-D"},"1039":{"n":"Syed Nawfil Rahim","l":"140-H"},"1093":{"n":"Syed Nihal Ali Shah","l":"141-D"},"3222":{"n":"Syed Rehaan Ali Shirazi","l":"140-H"},"1858":{"n":"Syed Shariq Ehsan","l":"141-D"},"T00050":{"n":"Syed Shees Ali","l":"140-H"},"2894":{"n":"Syed Sohaib Ahmed","l":"141-D"},"3383":{"n":"Syed Umaid Ahmed","l":"141-D"},"3421":{"n":"Syed Umair Ahmed","l":"140-H"},"2693":{"n":"Syed Umar Aftab","l":"140-H"},"2871":{"n":"Syeda Fizza Fatima Naqvi","l":"141-D"},"7903497":{"n":"Syeda Maham","l":"140-H"},"3463":{"n":"Syeda Saher Gul","l":"141-D"},"2520":{"n":"Taha Javed Siddiqui","l":"141-D"},"3393":{"n":"Taha Qutbuddin","l":"141-D"},"892":{"n":"Taha Tassadduq","l":"141-D"},"802":{"n":"Talaha Iqbal Ahmed","l":"140-H"},"2196":{"n":"Tania Jabbar","l":"140-H"},"3542":{"n":"Tanya Muzaffar","l":"141-D"},"2599":{"n":"Tanzeel Ahmed Siddiqui","l":"140-H"},"2642":{"n":"Tayyeba Memon","l":"140-H"},"3557":{"n":"Thomas Lindsay","l":"Dubai Office"},"3413":{"n":"Tina Adnan","l":"140-H"},"3146":{"n":"Umair Ahmed","l":"141-D"},"1":{"n":"Umair Gadit","l":"140-H"},"3544":{"n":"Umair Tariq","l":"Dubai Office"},"1959":{"n":"Umar Shahid","l":"140-H"},"3560":{"n":"Usama Afzal","l":"141-D"},"3392":{"n":"Usama Riaz","l":"140-H"},"3464":{"n":"Usman Ahmed","l":"141-D"},"3":{"n":"Uzair Gadit","l":"140-H"},"3141":{"n":"Uzwa Khalid","l":"140-H"},"3454":{"n":"Valeed Mehmood","l":"140-H"},"3508":{"n":"Vasco Miguel Goncalves","l":"140-H"},"2830":{"n":"Wahaj Masood","l":"141-D"},"18":{"n":"Wajdan Gul","l":"140-H"},"3530":{"n":"Wajiha Khalid Paracha","l":"140-H"},"1637":{"n":"Waleed Ahmed","l":"140-H"},"3446":{"n":"Waqar Ahmed","l":"141-D"},"265":{"n":"Waqas Ahmed","l":"140-H"},"36":{"n":"Waseem Ahmed","l":"140-H"},"1337":{"n":"Waseem Natho","l":"140-H"},"3346":{"n":"Yaseera Irfan","l":"140-H"},"7903500":{"n":"Yasir Ahmed","l":"140-H"},"1519":{"n":"Yasir Khan","l":"140-H"},"2004":{"n":"Yasir Zahid","l":"140-H"},"3517":{"n":"Yasser Tsikhlakis","l":"Dubai Office"},"3509":{"n":"Yusuf Emirhan Arat","l":"Dubai Office"},"3547":{"n":"Zarmeen Lakhani","l":"140-H"},"2868":{"n":"Zarwa Nawaz","l":"140-H"},"2485":{"n":"Zeeshan Rehman","l":"141-D"},"3382":{"n":"Zehra Imtiaz","l":"141-D"},"2080":{"n":"Zubin Patel","l":"141-D"}};
+
+/* storage */
+var mem = {};
+var store = {
+  get:function(k,fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return (k in mem)?mem[k]:fb; } },
+  set:function(k,val){ try{ localStorage.setItem(k,JSON.stringify(val)); }catch(e){ mem[k]=val; } }
+};
+
+/* state */
+var guests   = store.get('disrupt_guests', {});
+var visits   = store.get('disrupt_visits', []);
+var couriers = store.get('disrupt_couriers', []);
+var empEntries = store.get('disrupt_emp_entries', []);
+var feedback = store.get('disrupt_feedback', []);
+var gCampus='141-D', cCampus='141-D', cDir='inbound', recSub='visitors', matched=null;
+var empReason=null, empMatch=null, empCampus='141-D';
+
+/* utils */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function nowISO(){ return new Date().toISOString(); }
+function cleanPhone(p){ return (p||'').replace(/\s+/g,'').trim(); }
+function esc(s){ return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function fmt(iso){ if(!iso)return''; var d=new Date(iso); return d.toLocaleString(undefined,{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
+function fmtDay(iso){ return new Date(iso).toLocaleDateString(undefined,{weekday:'short',day:'2-digit',month:'short'}); }
+function isToday(iso){ return new Date(iso).toDateString()===new Date().toDateString(); }
+function $(id){ return document.getElementById(id); }
+function val(id){ return $(id).value.trim(); }
+var toastTimer;
+function toast(msg,kind){ var t=$('toast'); t.textContent=(kind==='err'?'\u2715  ':'\u2713  ')+msg; t.className='toast show '+(kind||'ok'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.className='toast';},2600); }
+var sheetUrl = store.get('disrupt_sheet_url','') || '';
+function postSheet(url,payload){ try{ fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); }catch(e){} }
+function syncToSheet(payload){ if(sheetUrl) postSheet(sheetUrl,payload); }
+function cardStatusText(v){ if(!v.cardNumber) return 'no card'; if(!v.checkOut) return 'issued ('+v.cardNumber+')'; return (v.cardReturned===false?'NOT returned':'returned')+' ('+v.cardNumber+')'; }
+function nicStatusText(v){ if(!v.nicHeld) return 'not held'; if(!v.checkOut) return 'held'; return v.nicReturned===false?'NOT returned':'returned'; }
+function sheetPayload(v,action){ return { type:'guest', action:action, name:v.name, cnic:v.cnic, phone:v.phone, personToMeet:v.personToMeet, purpose:v.purpose, campus:v.campus, cardNumber:v.cardNumber, cardStatus:cardStatusText(v), nicStatus:nicStatusText(v), checkIn:v.checkIn||'', checkOut:v.checkOut||'', nicPhoto:(action==='entry'?(v.nicPhoto||''):'') }; }
+
+/* working employee list (seeded from embedded data, editable via Admin) */
+var EMP = store.get('disrupt_employees', null);
+if(!EMP){ EMP = JSON.parse(JSON.stringify(EMPLOYEES)); store.set('disrupt_employees', EMP); }
+var NAME_LIST = [];
+function buildNameList(){ NAME_LIST = Object.keys(EMP).map(function(c){ return {code:c, name:EMP[c].n, loc:EMP[c].l}; }); }
+buildNameList();
+function saveEmp(){ store.set('disrupt_employees', EMP); buildNameList(); }
+var adminPin = store.get('disrupt_admin_pin', null) || '2547';
+
+/* screen nav */
+var SCREENS=['welcome','employee','guest','courier','records','analytics','feedback','admin'];
+function showScreen(name){
+  SCREENS.forEach(function(s){ var el=$('screen-'+s); if(el) el.classList.toggle('hidden', s!==name); });
+  $('backBtn').classList.toggle('show', name!=='welcome');
+  var rb=$('reasonBadge'); rb.className='reason-badge'+(name==='employee'&&empReason?(' show '+(empReason==='Card Lost'?'lost':'forgot')):'');
+  if(name==='employee'&&empReason) rb.textContent=(empReason==='Card Lost'?'\u26A0 CARD LOST':'\uD83D\uDCB3 CARD FORGOT');
+  if(name==='records') renderRecords();
+  if(name==='analytics') renderAnalytics();
+  if(name==='feedback') renderStars();
+  window.scrollTo(0,0);
+}
+$('backBtn').addEventListener('click', function(){ showScreen('welcome'); });
+$('guestChoice').addEventListener('click', function(){ showScreen('guest'); });
+var SCREEN_CODES={ courier:'1122', records:'2547', analytics:'2547', feedback:'2547' };
+var SCREEN_LABELS={ courier:'Courier log', records:'Records', analytics:'Analytics', feedback:'Guest feedback' };
+document.querySelectorAll('[data-goto]').forEach(function(b){ b.addEventListener('click', function(){ var t=b.dataset.goto; if(SCREEN_CODES[t]){ openPasscode(t); } else { showScreen(t); } }); });
+function updateReasonBadge(){ var rb=$('reasonBadge'); rb.className='reason-badge'+(empReason?(' show '+(empReason==='Card Lost'?'lost':'forgot')):''); if(empReason) rb.textContent=(empReason==='Card Lost'?'\u26A0 CARD LOST':'\uD83D\uDCB3 CARD FORGOT'); }
+$('empRfidBtn').addEventListener('click', function(){ empReason=null; resetEmp(); document.querySelectorAll('#empReasonBtns button').forEach(function(x){x.classList.remove('sel');}); updateReasonBadge(); showScreen('employee'); });
+document.querySelectorAll('#empReasonBtns button').forEach(function(b){ b.addEventListener('click', function(){ empReason=b.dataset.reason; document.querySelectorAll('#empReasonBtns button').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); updateReasonBadge(); $('eId').focus(); }); });
+
+/* ---------- EMPLOYEE lookup ---------- */
+function resetEmp(){ $('eId').value=''; $('eName').value=''; empMatch=null; $('eResult').innerHTML=''; $('eAuthorize').disabled=true; $('eCampusField').classList.add('hidden'); }
+function setEmpFound(m){
+  empMatch=m;
+  $('eName').value=m.n;
+  $('eResult').innerHTML='<div class="found"><div class="fic">\u2713</div><div><div class="ftitle">Employee found</div><div class="fsub">'+esc(m.n)+' \u00B7 '+esc(m.l||'\u2014')+'</div></div></div>';
+  $('eAuthorize').disabled=false;
+  $('eCampusField').classList.remove('hidden'); empCampus=setSeg('eCampusSeg', m.l||'141-D');
+}
+function setEmpNotFound(){
+  empMatch=null; $('eAuthorize').disabled=true; $('eCampusField').classList.add('hidden');
+  $('eResult').innerHTML='<div class="found notfound"><div class="fic">!</div><div><div class="ftitle">No match</div><div class="fsub">No employee record for this ID / name. Check and try again.</div></div></div>';
+}
+$('eId').addEventListener('input', function(){
+  var code=this.value.trim();
+  if(!code){ $('eResult').innerHTML=''; $('eAuthorize').disabled=true; empMatch=null; $('eCampusField').classList.add('hidden'); return; }
+  if(EMP[code]){ setEmpFound(EMP[code]); } else { setEmpNotFound(); }
+});
+$('eName').addEventListener('input', function(){
+  var q=this.value.trim().toLowerCase();
+  if(q.length<3){ return; }
+  var hit=NAME_LIST.filter(function(e){ return e.name.toLowerCase().indexOf(q)>-1; });
+  if(hit.length===1){ $('eId').value=hit[0].code; setEmpFound(EMP[hit[0].code]); }
+});
+$('eAuthorize').addEventListener('click', function(){
+  if(!empReason) return toast('Select Card Lost or Card Forgot first','err');
+  if(!empMatch) return toast('No employee record selected','err');
+  var code=$('eId').value.trim();
+  var entry={ id:uid(), code:code, name:empMatch.n, homeLocation:empMatch.l, campus:empCampus, reason:empReason, time:nowISO() };
+  empEntries.unshift(entry); store.set('disrupt_emp_entries', empEntries); syncToSheet({type:'employee', code:code, name:empMatch.n, reason:empReason, campus:empCampus, homeCampus:empMatch.l, time:entry.time});
+  toast('Entry authorized \u2014 '+empMatch.n);
+  resetEmp(); empReason=null; document.querySelectorAll('#empReasonBtns button').forEach(function(x){x.classList.remove('sel');}); showScreen('welcome');
+});
+
+/* ---------- segments ---------- */
+function bindSeg(segId, cb){ document.querySelectorAll('#'+segId+' button').forEach(function(b){ b.addEventListener('click', function(){ b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); cb(b); }); }); }
+bindSeg('gCampusSeg', function(b){ gCampus=b.dataset.campus; });
+bindSeg('cCampusSeg', function(b){ cCampus=b.dataset.campus; });
+function setSeg(segId,campus){ var hit=false; document.querySelectorAll('#'+segId+' button').forEach(function(b){ var on=b.dataset.campus===campus; b.classList.toggle('on',on); if(on)hit=true; }); if(!hit){ var btns=document.querySelectorAll('#'+segId+' button'); btns.forEach(function(b){b.classList.remove('on');}); btns[0].classList.add('on'); return btns[0].dataset.campus; } return campus; }
+bindSeg('eCampusSeg', function(b){ empCampus=b.dataset.campus; });
+bindSeg('cDirSeg', function(b){ cDir=b.dataset.dir; var inb=cDir==='inbound';
+  $('cPartyLabel').textContent=inb?'Sender':'Destination'; $('cParty').placeholder=inb?'Sender name / company':"Where it's going";
+  $('cRecipLabel').textContent=inb?'Deliver to (employee)':'Sent by (employee)'; $('cSubmit').textContent=(inb?'LOG PARCEL':'LOG DISPATCH')+' \u2192'; });
+
+/* ---------- guest ---------- */
+var recurringOn=false;
+$('gRecurring').addEventListener('click', function(){ recurringOn=!recurringOn; this.classList.toggle('on',recurringOn); });
+var nicHeldOn=false;
+var gNicPhotoData=null, _tessLoading=null;
+function resizeImage(file, maxW, cb){ var img=new Image(); var url=URL.createObjectURL(file); img.onload=function(){ var scale=Math.min(1, maxW/img.width); var w=Math.round(img.width*scale), hh=Math.round(img.height*scale); var cv=document.createElement('canvas'); cv.width=w; cv.height=hh; cv.getContext('2d').drawImage(img,0,0,w,hh); URL.revokeObjectURL(url); cb(cv.toDataURL('image/jpeg',0.6)); }; img.onerror=function(){ URL.revokeObjectURL(url); cb(null); }; img.src=url; }
+function loadTesseract(){ if(window.Tesseract) return Promise.resolve(); if(_tessLoading) return _tessLoading; _tessLoading=new Promise(function(res,rej){ var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); return _tessLoading; }
+function parseNic(text){ var m=text.replace(/\s/g,'').match(/(\d{5})-?(\d{7})-?(\d)/); return m?(m[1]+'-'+m[2]+'-'+m[3]):null; }
+function parseName(text){ var lines=text.split(/\n/).map(function(l){return l.trim();}).filter(Boolean); for(var i=0;i<lines.length;i++){ if(/^name\b/i.test(lines[i])){ var cand=lines[i].replace(/^name[:\s]*/i,'').trim()||lines[i+1]||''; if(cand&&/[A-Za-z]{3,}/.test(cand)&&!/father|husband|gender|country/i.test(cand)) return cand; } } return null; }
+$('gNicPhoto').addEventListener('change', function(e){
+  var file=e.target.files[0]; if(!file) return;
+  $('nicOcrStatus').textContent='Processing photo\u2026';
+  resizeImage(file, 700, function(data){
+    if(!data){ $('nicOcrStatus').textContent='Could not read image'; return; }
+    gNicPhotoData=data; $('nicPreview').innerHTML='<img src="'+data+'" alt="NIC" />';
+    $('nicOcrStatus').textContent='Reading NIC (needs internet)\u2026';
+    loadTesseract().then(function(){ return Tesseract.recognize(data,'eng'); }).then(function(r){
+      var text=(r&&r.data&&r.data.text)||''; var nic=parseNic(text), nm=parseName(text), msg=[];
+      if(nic){ $('gCnic').value=nic; msg.push('NIC number detected'); } else msg.push('NIC number not detected \u2014 type manually');
+      if(nm && !$('gName').value){ $('gName').value=nm; msg.push('name detected'); }
+      $('nicOcrStatus').textContent='\u2713 '+msg.join(' \u00B7 ')+' \u2014 please verify';
+    }).catch(function(){ $('nicOcrStatus').textContent='Auto-read unavailable (offline?) \u2014 photo saved, please type name & NIC'; });
+  });
+});
+$('gPhone').addEventListener('input', function(){
+  var key=cleanPhone(this.value);
+  if(key.length>=4&&guests[key]){ matched=guests[key]; $('matchText').innerHTML='\u21BB <b>'+esc(matched.name)+'</b> is a returning guest. Load saved details?'; $('matchBanner').classList.remove('hidden'); }
+  else { matched=null; $('matchBanner').classList.add('hidden'); }
+});
+$('loadMatch').addEventListener('click', function(){ if(!matched)return; $('gName').value=matched.name||''; $('gCnic').value=matched.cnic||''; $('gMeet').value=matched.personToMeet||''; if(!recurringOn){recurringOn=true;$('gRecurring').classList.add('on');} });
+function resetGuest(){ ['gName','gPhone','gCnic','gMeet','gCard','gPurpose'].forEach(function(id){$(id).value='';}); recurringOn=false; $('gRecurring').classList.remove('on'); nicHeldOn=false; gNicPhotoData=null; if($('nicPreview'))$('nicPreview').innerHTML=''; if($('nicOcrStatus'))$('nicOcrStatus').textContent=''; if($('gNicPhoto'))$('gNicPhoto').value=''; matched=null; $('matchBanner').classList.add('hidden'); }
+$('gClear').addEventListener('click', resetGuest);
+$('gSubmit').addEventListener('click', function(){
+  var name=val('gName'), phone=cleanPhone($('gPhone').value), meet=val('gMeet'), purpose=val('gPurpose');
+  if(!name)return toast("Enter the guest's full name",'err'); if(!phone)return toast('Enter a contact number','err'); if(!meet)return toast('Enter who the guest is here to meet','err'); if(!purpose)return toast('Enter the purpose of visit','err');
+  var visit={ id:uid(), campus:gCampus, name:name, phone:phone, cnic:val('gCnic'), personToMeet:meet, purpose:purpose, cardNumber:val('gCard'), recurring:recurringOn, checkIn:nowISO(), checkOut:null, cardReturned:null, nicHeld:nicHeldOn, nicReturned:null, nicPhoto:gNicPhotoData };
+  visits.unshift(visit); store.set('disrupt_visits', visits);
+  if(recurringOn){ guests[phone]={ name:name, phone:phone, cnic:val('gCnic'), personToMeet:meet, firstSeen:(guests[phone]&&guests[phone].firstSeen)||nowISO() }; store.set('disrupt_guests', guests); }
+  syncToSheet(sheetPayload(visit,'entry')); toast('Visit registered for '+name); resetGuest(); showScreen('welcome');
+});
+
+/* ---------- courier ---------- */
+$('cSubmit').addEventListener('click', function(){
+  var company=val('cCompany'), party=val('cParty');
+  if(!company)return toast('Enter the courier company','err'); if(!party)return toast(cDir==='inbound'?'Enter the sender':'Enter the destination','err');
+  var item={ id:uid(), campus:cCampus, direction:cDir, company:company, tracking:val('cTrack'), party:party, recipient:val('cRecipient'), receivedBy:val('cBy'), note:val('cNote'), dateTime:nowISO(), status:cDir==='inbound'?'At front desk':'Dispatched' };
+  couriers.unshift(item); store.set('disrupt_couriers', couriers); syncToSheet({type:'courier', direction:item.direction, company:item.company, tracking:item.tracking, party:item.party, recipient:item.recipient, receivedBy:item.receivedBy, note:item.note, status:item.status, campus:item.campus, time:item.dateTime});
+  toast(cDir==='inbound'?'Parcel logged':'Outbound courier logged'); ['cCompany','cTrack','cParty','cRecipient','cBy','cNote'].forEach(function(id){$(id).value='';});
+});
+
+/* ---------- records ---------- */
+document.querySelectorAll('.rec-tab').forEach(function(b){ b.addEventListener('click', function(){ document.querySelectorAll('.rec-tab').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); recSub=b.dataset.rec; renderRecords(); }); });
+$('recQuery').addEventListener('input', renderRecords);
+function pill(cls,txt){ return '<span class="pill '+cls+'">'+txt+'</span>'; }
+function empty(t){ return '<div class="empty">'+t+'</div>'; }
+function cardStatusPill(v){ if(!v.cardNumber) return ''; var num=esc(v.cardNumber); if(!v.checkOut) return pill('amber','\u25AD card '+num+' \u00B7 with visitor'); if(v.cardReturned===false) return pill('red','\u25AD card '+num+' \u00B7 NOT returned'); return pill('green','\u25AD card '+num+' \u00B7 returned'); }
+function nicStatusPill(v){ if(!v.nicHeld) return ''; if(!v.checkOut) return pill('amber','\uD83E\uDEAA NIC held'); if(v.nicReturned===false) return pill('red','\uD83E\uDEAA NIC NOT returned'); return pill('green','\uD83E\uDEAA NIC returned'); }
+function renderRecords(){
+  $('recSearch').classList.toggle('hidden', recSub!=='recurring');
+  var html='';
+  if(recSub==='visitors'){
+    var today=visits.filter(function(v){return isToday(v.checkIn);});
+    if(!today.length) html=empty('No guests registered today yet.');
+    today.forEach(function(v){
+      html+='<div class="card"><div class="grow"><div class="card-top"><span class="card-name">'+esc(v.name)+'</span>'+pill('campus','\uD83C\uDFE2 '+esc(v.campus||'\u2014'))+(v.recurring?pill('blue','\u21BB recurring'):'')+cardStatusPill(v)+nicStatusPill(v)+(v.checkOut?pill('muted','checked out'):pill('green','on-site'))+'</div><div class="card-meta"><span>\u260E '+esc(v.phone)+'</span>'+(v.cnic?'<span>CNIC '+esc(v.cnic)+'</span>':'')+'<span>meeting '+esc(v.personToMeet)+'</span>'+(v.purpose?'<span>purpose: '+esc(v.purpose)+'</span>':'')+'</div><div class="card-time">\uD83D\uDD58 Time in '+fmt(v.checkIn)+(v.checkOut?' \u2014 Time out '+fmt(v.checkOut):' \u2014 still on-site')+'</div>'+(v.nicPhoto?'<div style="margin-top:6px;"><img class="rec-thumb" src="'+v.nicPhoto+'" /></div>':'')+'</div>'+(v.checkOut?'':'<button class="outbtn" data-out="'+v.id+'">\u21E5 Check out</button>')+'</div>';
+    });
+  } else if(recSub==='employees'){
+    var te=empEntries.filter(function(e){return isToday(e.time);});
+    if(!te.length) html=empty('No employee card-less entries logged today.');
+    te.forEach(function(e){
+      html+='<div class="card"><div class="grow"><div class="card-top"><span class="card-name">'+esc(e.name)+'</span>'+pill('gray','ID '+esc(e.code))+pill('campus','\uD83C\uDFE2 '+esc(e.campus||e.location||'\u2014'))+pill(e.reason==='Card Lost'?'red':'blue',e.reason==='Card Lost'?'\u26A0 card lost':'\uD83D\uDCB3 card forgot')+((e.homeLocation&&e.campus&&e.homeLocation!==e.campus)?pill('amber','\u21AA home '+esc(e.homeLocation)):'')+'</div><div class="card-time">\uD83D\uDD58 '+fmt(e.time)+'</div></div></div>';
+    });
+  } else if(recSub==='recurring'){
+    var q=$('recQuery').value.trim().toLowerCase();
+    var arr=Object.keys(guests).map(function(k){return guests[k];});
+    if(q) arr=arr.filter(function(g){return g.name.toLowerCase().indexOf(q)>-1||g.phone.indexOf(q)>-1||(g.cnic||'').indexOf(q)>-1;});
+    if(!arr.length) html=empty('No saved recurring guests yet.');
+    arr.forEach(function(g){
+      html+='<div class="card"><div class="grow"><div class="card-top"><span class="card-name">'+esc(g.name)+'</span>'+pill('blue','\u21BB recurring')+'</div><div class="card-meta"><span>\u260E '+esc(g.phone)+'</span>'+(g.cnic?'<span>CNIC '+esc(g.cnic)+'</span>':'')+(g.personToMeet?'<span>usually meets '+esc(g.personToMeet)+'</span>':'')+'</div>'+(g.firstSeen?'<div class="card-time">saved '+fmtDay(g.firstSeen)+'</div>':'')+'</div><button class="delbtn" data-del="'+esc(g.phone)+'">\uD83D\uDDD1</button></div>';
+    });
+  } else if(recSub==='feedback'){
+    var fm=feedback.filter(function(x){return thisMonth(x.time);});
+    var avg=fm.length?(fm.reduce(function(s,x){return s+x.rating;},0)/fm.length).toFixed(1):'\u2014';
+    html+='<div class="card-time" style="padding:2px 2px 12px;font-size:13px;">This month: '+fm.length+' responses \u00B7 avg '+avg+' / 5</div>';
+    if(!feedback.length) html+=empty('No guest feedback yet.');
+    feedback.forEach(function(x){ var st=''; for(var i=1;i<=5;i++){ st+=(i<=x.rating?'\u2605':'\u2606'); }
+      html+='<div class="card"><div class="grow"><div class="card-top"><span class="card-name" style="color:#f5a623;letter-spacing:2px;">'+st+'</span>'+pill('campus','\uD83C\uDFE2 '+esc(x.campus||'\u2014'))+(x.name?pill('gray',esc(x.name)):'')+'</div>'+(x.comment?'<div class="card-meta"><span>'+esc(x.comment)+'</span></div>':'')+'<div class="card-time">\uD83D\uDD58 '+fmt(x.time)+'</div></div></div>';
+    });
+  } else {
+    if(!couriers.length) html=empty('No courier entries logged yet.');
+    couriers.forEach(function(c){
+      var inb=c.direction==='inbound', done=(c.status==='Handed over'||c.status==='Collected by courier');
+      html+='<div class="card"><div class="grow"><div class="card-top">'+pill(inb?'green':'blue',inb?'\uD83D\uDCE5 incoming':'\uD83D\uDCE4 outgoing')+pill('campus','\uD83C\uDFE2 '+esc(c.campus||'\u2014'))+'<span class="card-name">'+esc(c.company)+'</span>'+(c.tracking?pill('gray',esc(c.tracking)):'')+pill(done?'muted':'amber',esc(c.status))+'</div><div class="card-meta"><span>'+(inb?'from ':'to ')+esc(c.party)+'</span>'+(c.recipient?'<span>'+(inb?'for ':'by ')+esc(c.recipient)+'</span>':'')+(c.receivedBy?'<span>logged by '+esc(c.receivedBy)+'</span>':'')+'</div>'+(c.note?'<div class="card-time">note: '+esc(c.note)+'</div>':'')+'<div class="card-time">\uD83D\uDD58 '+fmt(c.dateTime)+'</div></div>'+(done?'':'<button class="outbtn" data-adv="'+c.id+'">\u2713 '+(inb?'Hand over':'Collected')+'</button>')+'</div>';
+    });
+  }
+  $('recList').innerHTML=html;
+  $('recList').querySelectorAll('[data-out]').forEach(function(b){ b.onclick=function(){ checkout(b.dataset.out); }; });
+  $('recList').querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ forget(b.dataset.del); }; });
+  $('recList').querySelectorAll('[data-adv]').forEach(function(b){ b.onclick=function(){ advance(b.dataset.adv); }; });
+}
+function checkout(id){ var v0=null; visits.forEach(function(v){ if(v.id===id) v0=v; }); var cardRet=true, nicRet=true; if(v0&&v0.cardNumber){ cardRet=confirm('Visitor card '+v0.cardNumber+' returned?\n\nOK = Returned\nCancel = NOT returned'); } if(v0&&v0.nicHeld){ nicRet=confirm("Guest's NIC / ID card returned?\n\nOK = Returned\nCancel = NOT returned"); } visits=visits.map(function(v){return v.id===id?Object.assign({},v,{checkOut:nowISO(), cardReturned:(v.cardNumber?cardRet:null), nicReturned:(v.nicHeld?nicRet:null)}):v;}); store.set('disrupt_visits',visits); toast('Visit complete \u2014 '+(v0?v0.name:'guest')+' checked out'); renderRecords(); var vv=null; visits.forEach(function(x){if(x.id===id)vv=x;}); if(vv) syncToSheet(sheetPayload(vv,'checkout')); if(v0){ fCampus=v0.campus||'141-D'; setSeg('fCampusSeg', fCampus); fRating=0; $('fComment').value=''; $('fName').value=v0.name||''; showScreen('feedback'); } }
+function forget(phone){ delete guests[phone]; store.set('disrupt_guests',guests); toast('Recurring guest removed'); renderRecords(); }
+function advance(id){ couriers=couriers.map(function(c){return c.id===id?Object.assign({},c,{status:c.direction==='inbound'?'Handed over':'Collected by courier'}):c;}); store.set('disrupt_couriers',couriers); toast('Courier status updated'); renderRecords(); }
+
+
+/* ---------- ADMIN ---------- */
+var editingCode=null;
+$('adminUnlock').addEventListener('click', function(){
+  if($('adminPin').value===adminPin){ $('adminPin').value=''; $('adminGate').classList.add('hidden'); $('adminPanel').classList.remove('hidden'); renderAdmin(); refreshSheetUI(); }
+  else toast('Wrong PIN','err');
+});
+$('adminPin').addEventListener('keydown', function(e){ if(e.key==='Enter') $('adminUnlock').click(); });
+
+function resetAddForm(){ editingCode=null; $('aCode').value=''; $('aName').value=''; $('aLoc').value=''; $('aCode').readOnly=false; $('addFormTitle').textContent='Add employee'; $('aSave').textContent='Add employee'; $('aCancel').style.display='none'; }
+$('aCancel').addEventListener('click', resetAddForm);
+$('aSave').addEventListener('click', function(){
+  var code=$('aCode').value.trim(), name=$('aName').value.trim(), loc=$('aLoc').value.trim();
+  if(!code) return toast('Enter a code','err');
+  if(!name) return toast('Enter the employee name','err');
+  if(!editingCode && EMP[code]) return toast('Code '+code+' already exists \u2014 edit it instead','err');
+  EMP[code]={n:name,l:loc}; saveEmp();
+  toast(editingCode?'Employee updated':'Employee added'); resetAddForm(); renderAdmin();
+});
+function editEmp(code){ editingCode=code; $('aCode').value=code; $('aCode').readOnly=true; $('aName').value=EMP[code].n; $('aLoc').value=EMP[code].l||''; $('addFormTitle').textContent='Edit employee '+code; $('aSave').textContent='Save changes'; $('aCancel').style.display='inline-flex'; window.scrollTo(0,0); }
+function delEmp(code){ if(!confirm('Remove '+EMP[code].n+' ('+code+')?')) return; delete EMP[code]; saveEmp(); toast('Employee removed'); if(editingCode===code) resetAddForm(); renderAdmin(); }
+
+$('aSearch').addEventListener('input', renderAdmin);
+function renderAdmin(){
+  $('empCount').textContent=Object.keys(EMP).length;
+  var q=$('aSearch').value.trim().toLowerCase();
+  var arr=Object.keys(EMP).map(function(c){return {code:c,n:EMP[c].n,l:EMP[c].l};});
+  arr.sort(function(a,b){return a.n.localeCompare(b.n);});
+  if(q) arr=arr.filter(function(e){return e.code.toLowerCase().indexOf(q)>-1||e.n.toLowerCase().indexOf(q)>-1;});
+  var total=arr.length, cap=60, shown=arr.slice(0,cap), html='';
+  if(!total){ html=empty('No matching employees.'); }
+  shown.forEach(function(e){
+    html+='<div class="card"><div class="grow"><div class="card-top"><span class="card-name">'+esc(e.n)+'</span>'+pill('gray','ID '+esc(e.code))+pill('campus','\uD83C\uDFE2 '+esc(e.l||'\u2014'))+'</div></div><button class="outbtn" data-edit="'+esc(e.code)+'">Edit</button><button class="delbtn" data-delemp="'+esc(e.code)+'">\uD83D\uDDD1</button></div>';
+  });
+  if(total>cap) html+='<div class="card-time" style="justify-content:center;padding:8px;">Showing first '+cap+' of '+total+' \u2014 use search to narrow down.</div>';
+  $('aList').innerHTML=html;
+  $('aList').querySelectorAll('[data-edit]').forEach(function(b){ b.onclick=function(){ editEmp(b.dataset.edit); }; });
+  $('aList').querySelectorAll('[data-delemp]').forEach(function(b){ b.onclick=function(){ delEmp(b.dataset.delemp); }; });
+}
+
+function csvCell(s){ s=String(s==null?'':s); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+$('aExport').addEventListener('click', function(){
+  var rows=['Code,Employee Name,Location'];
+  Object.keys(EMP).forEach(function(c){ rows.push([c,EMP[c].n,EMP[c].l].map(csvCell).join(',')); });
+  var blob=new Blob([rows.join('\n')],{type:'text/csv'}); var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='disrupt-employees-backup.csv'; document.body.appendChild(a); a.click(); a.remove();
+  toast('Backup downloaded');
+});
+function parseCSV(text){ var out=[]; text.split(/\r?\n/).forEach(function(line,i){ if(!line.trim())return; var p=line.split(','); var code=(p[0]||'').trim(); if(i===0&&/code/i.test(code))return; var name=(p[1]||'').trim(); var loc=(p[2]||'').trim(); if(code&&name) out.push({code:code,name:name,loc:loc}); }); return out; }
+$('aImport').addEventListener('change', function(e){
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(){
+    var rows=parseCSV(r.result);
+    if(!rows.length){ toast('No valid rows found in file','err'); return; }
+    var mode=confirm('Import '+rows.length+' rows.\n\nOK = REPLACE entire list\nCancel = MERGE / update existing')?'replace':'merge';
+    if(mode==='replace') EMP={};
+    rows.forEach(function(x){ EMP[x.code]={n:x.name,l:x.loc}; });
+    saveEmp(); renderAdmin();
+    toast((mode==='replace'?'List replaced \u2014 ':'Merged \u2014 ')+Object.keys(EMP).length+' employees');
+  };
+  r.readAsText(file); e.target.value='';
+});
+$('aReset').addEventListener('click', function(){
+  if(!confirm('Reset the employee list back to the original '+Object.keys(EMPLOYEES).length+' records? This discards your edits.')) return;
+  EMP=JSON.parse(JSON.stringify(EMPLOYEES)); saveEmp(); resetAddForm(); renderAdmin(); toast('List reset to original');
+});
+$('aPinBtn').addEventListener('click', function(){
+  var p=prompt('Set a new admin PIN (leave blank to cancel):'); if(!p) return;
+  adminPin=p.trim(); store.set('disrupt_admin_pin', adminPin); toast('Admin PIN updated');
+});
+function refreshSheetUI(){ if(!$('sheetUrl')) return; $('sheetUrl').value=sheetUrl||''; $('sheetStatus').textContent=sheetUrl?'\u2713 Connected \u2014 new entries save to your sheet.':'Not connected \u2014 paste your Web App URL to enable backup.'; }
+$('sheetSave').addEventListener('click', function(){ sheetUrl=$('sheetUrl').value.trim(); store.set('disrupt_sheet_url', sheetUrl); refreshSheetUI(); toast(sheetUrl?'Sheet sync saved':'Sheet sync cleared'); });
+$('sheetTest').addEventListener('click', function(){ var u=$('sheetUrl').value.trim(); if(!u) return toast('Paste the Web App URL first','err'); postSheet(u,{type:'guest', action:'test', name:'Test entry', campus:'\u2014', checkIn:nowISO()}); toast('Test row sent \u2014 check your sheet'); });
+
+
+/* ---------- FEEDBACK ---------- */
+var fRating=0, fCampus='141-D';
+function renderStars(){ var s=''; for(var i=1;i<=5;i++){ s+='<span data-star="'+i+'"'+(i<=fRating?' class="on"':'')+'>\u2605</span>'; } $('fStars').innerHTML=s; $('fStars').querySelectorAll('[data-star]').forEach(function(b){ b.onclick=function(){ fRating=+b.dataset.star; renderStars(); }; }); }
+bindSeg('fCampusSeg', function(b){ fCampus=b.dataset.campus; });
+$('fSubmit').addEventListener('click', function(){
+  if(!fRating) return toast('Please tap a star rating','err');
+  var fb={ id:uid(), rating:fRating, comment:val('fComment'), name:val('fName'), campus:fCampus, time:nowISO() }; feedback.unshift(fb); store.set('disrupt_feedback', feedback); syncToSheet({type:'feedback', rating:fb.rating, comment:fb.comment, name:fb.name, campus:fb.campus, time:fb.time});
+  toast('Thank you for your feedback!'); fRating=0; $('fComment').value=''; $('fName').value=''; renderStars(); showScreen('welcome');
+});
+
+/* ---------- ANALYTICS ---------- */
+function thisMonth(iso){ var d=new Date(iso),n=new Date(); return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth(); }
+function statCard(label,v,sub){ return '<div style="flex:1;min-width:150px;background:#fbfcfe;border:1px solid #eceff5;border-radius:14px;padding:16px;"><div style="font-size:28px;font-weight:800;">'+v+'</div><div class="label" style="margin:6px 0 0;">'+label+'</div>'+(sub?'<div class="card-time">'+sub+'</div>':'')+'</div>'; }
+function barRow(name,count,max){ var w=max?Math.round(count/max*100):0; return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;"><span>'+esc(name)+'</span><b>'+count+'</b></div><div style="background:#eef1f6;border-radius:6px;height:8px;"><div style="width:'+w+'%;height:8px;border-radius:6px;background:#8f9fe8;"></div></div></div>'; }
+function renderAnalytics(){
+  var v=visits.filter(function(x){return thisMonth(x.checkIn);});
+  var e=empEntries.filter(function(x){return thisMonth(x.time);});
+  var c=couriers.filter(function(x){return thisMonth(x.dateTime);});
+  var f=feedback.filter(function(x){return thisMonth(x.time);});
+  $('anMonth').textContent=new Date().toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  var lost=e.filter(function(x){return x.reason==='Card Lost';}).length, forgot=e.length-lost;
+  var cin=c.filter(function(x){return x.direction==='inbound';}).length, cout=c.length-cin;
+  var avg=f.length?(f.reduce(function(s,x){return s+x.rating;},0)/f.length).toFixed(1):'\u2014';
+  var html='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;">'
+    + statCard('Guest visits', v.length, '')
+    + statCard('Card-less entries', e.length, lost+' lost \u00B7 '+forgot+' forgot')
+    + statCard('Couriers', c.length, cin+' in \u00B7 '+cout+' out')
+    + statCard('Avg feedback', avg, f.length+' responses')
+    + '</div>';
+  var ec={}; e.forEach(function(x){ ec[x.code]=(ec[x.code]||0)+1; });
+  var topE=Object.keys(ec).map(function(k){return {k:k,n:(EMP[k]?EMP[k].n:k),c:ec[k]};}).sort(function(a,b){return b.c-a.c;}).slice(0,8);
+  html+='<div class="label" style="margin-bottom:10px;">Most frequent card-less entries</div>';
+  html+= topE.length? topE.map(function(t){return barRow(t.n+' ('+t.k+')',t.c,topE[0].c);}).join('') : empty('No entries this month.');
+  var gc={}; v.forEach(function(x){ if(!gc[x.phone])gc[x.phone]={n:x.name,c:0}; gc[x.phone].c++; });
+  var topG=Object.keys(gc).map(function(k){return {n:gc[k].n,p:k,c:gc[k].c};}).sort(function(a,b){return b.c-a.c;}).filter(function(x){return x.c>1;}).slice(0,8);
+  html+='<div class="label" style="margin:22px 0 10px;">Repeat guests this month</div>';
+  html+= topG.length? topG.map(function(t){return barRow(t.n+' ('+t.p+')',t.c,topG[0].c);}).join('') : empty('No repeat guests this month.');
+  var camp={}; v.forEach(function(x){camp[x.campus]=(camp[x.campus]||0)+1;}); e.forEach(function(x){var k=x.campus||x.homeLocation||'\u2014';camp[k]=(camp[k]||0)+1;});
+  var ck=Object.keys(camp); var maxC=ck.reduce(function(m,k){return Math.max(m,camp[k]);},0);
+  html+='<div class="label" style="margin:22px 0 10px;">Activity by campus</div>';
+  html+= ck.length? ck.map(function(k){return barRow(k,camp[k],maxC);}).join('') : empty('No activity this month.');
+  $('anBody').innerHTML=html;
+}
+
+var pcTarget=null;
+function openPasscode(target){ pcTarget=target; $('pcTitle').textContent=(SCREEN_LABELS[target]||target); $('pcSub').textContent='Enter passcode to open '+(SCREEN_LABELS[target]||target); $('pcInput').value=''; $('pcErr').textContent=''; $('pcModal').classList.add('show'); setTimeout(function(){ $('pcInput').focus(); },60); }
+function closePasscode(){ $('pcModal').classList.remove('show'); pcTarget=null; }
+$('pcCancel').addEventListener('click', closePasscode);
+$('pcOk').addEventListener('click', function(){ if(!pcTarget) return; if($('pcInput').value.trim()===SCREEN_CODES[pcTarget]){ var t=pcTarget; closePasscode(); showScreen(t); } else { $('pcErr').textContent='Wrong passcode'; $('pcInput').value=''; $('pcInput').focus(); } });
+$('pcInput').addEventListener('keydown', function(e){ if(e.key==='Enter') $('pcOk').click(); });
+$('pcModal').addEventListener('click', function(e){ if(e.target===this) closePasscode(); });
+
+showScreen('welcome');
+</script>
+</body>
+</html>
