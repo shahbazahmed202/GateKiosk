@@ -169,6 +169,13 @@
   .gtabs { display:flex; gap:8px; margin-bottom:18px; }
   .gtab { display:flex; align-items:center; gap:6px; padding:10px 18px; border-radius:999px; border:1px solid #e0e4ee; background:#fff; color:#5c6579; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
   .gtab.on { background:#2b2740; color:#fff; border-color:#2b2740; }
+
+  .voice-wrap { position:relative; display:block; width:100%; }
+  .icon-wrap.has-voice input, .voice-wrap input { padding-right:44px !important; }
+  .voice-btn { position:absolute; right:7px; top:50%; transform:translateY(-50%); width:30px; height:30px; border:none; border-radius:9px; background:#eef1fd; color:#5566cf; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; padding:0; }
+  .voice-btn:hover { background:#e2e7fb; }
+  .voice-btn.listening { background:#fdeaea; color:#d24b52; animation:micpulse 1s ease-in-out infinite; }
+  @keyframes micpulse { 0%,100%{ transform:translateY(-50%) scale(1); } 50%{ transform:translateY(-50%) scale(1.18); } }
 </style>
 </head>
 <body>
@@ -360,7 +367,7 @@
     <div class="field"><label class="label">Campus</label><div class="seg" id="fCampusSeg"><button data-campus="141-D" class="on">&#127970; 141-D</button><button data-campus="140-H">&#127970; 140-H</button><button data-campus="Dubai Office">&#127970; Dubai Office</button></div></div>
     <div class="field"><label class="label">Overall rating</label><div id="fStars" class="stars"></div></div>
     <div class="field"><label class="label">Comments (optional)</label><input id="fComment" placeholder="Anything we can improve?" /></div>
-    <div class="field"><label class="label">Your name (optional)</label><input id="fName" placeholder="Optional" /></div>
+    <div class="field"><label class="label">Employee code (optional)</label><input id="fCode" placeholder="e.g. 361" /></div>
     <div class="actions"><button class="primary" id="fSubmit">SUBMIT FEEDBACK &rarr;</button></div>
   </div>
 
@@ -594,7 +601,7 @@ function renderRecords(){
     html+='<div class="card-time" style="padding:2px 2px 12px;font-size:13px;">This month: '+fm.length+' responses \u00B7 avg '+avg+' / 5</div>';
     if(!feedback.length) html+=empty('No guest feedback yet.');
     feedback.forEach(function(x){ var st=''; for(var i=1;i<=5;i++){ st+=(i<=x.rating?'\u2605':'\u2606'); }
-      html+='<div class="card"><div class="grow"><div class="card-top"><span class="card-name" style="color:#f5a623;letter-spacing:2px;">'+st+'</span>'+pill('campus','\uD83C\uDFE2 '+esc(x.campus||'\u2014'))+(x.name?pill('gray',esc(x.name)):'')+'</div>'+(x.comment?'<div class="card-meta"><span>'+esc(x.comment)+'</span></div>':'')+'<div class="card-time">\uD83D\uDD58 '+fmt(x.time)+'</div></div></div>';
+      html+='<div class="card"><div class="grow"><div class="card-top"><span class="card-name" style="color:#f5a623;letter-spacing:2px;">'+st+'</span>'+pill('campus','\uD83C\uDFE2 '+esc(x.campus||'\u2014'))+(x.code?pill('gray','ID '+esc(x.code)):'')+'</div>'+(x.comment?'<div class="card-meta"><span>'+esc(x.comment)+'</span></div>':'')+'<div class="card-time">\uD83D\uDD58 '+fmt(x.time)+'</div></div></div>';
     });
   } else {
     if(!couriers.length) html=empty('No courier entries logged yet.');
@@ -608,7 +615,7 @@ function renderRecords(){
   $('recList').querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ forget(b.dataset.del); }; });
   $('recList').querySelectorAll('[data-adv]').forEach(function(b){ b.onclick=function(){ advance(b.dataset.adv); }; });
 }
-function checkout(id){ var v0=null; visits.forEach(function(v){ if(v.id===id) v0=v; }); var cardRet=true, nicRet=true; if(v0&&v0.cardNumber){ cardRet=confirm('Visitor card '+v0.cardNumber+' returned?\n\nOK = Returned\nCancel = NOT returned'); } if(v0&&v0.nicHeld){ nicRet=confirm("Guest's NIC / ID card returned?\n\nOK = Returned\nCancel = NOT returned"); } visits=visits.map(function(v){return v.id===id?Object.assign({},v,{checkOut:nowISO(), cardReturned:(v.cardNumber?cardRet:null), nicReturned:(v.nicHeld?nicRet:null)}):v;}); store.set('disrupt_visits',visits); toast('Visit complete \u2014 '+(v0?v0.name:'guest')+' checked out'); renderRecords(); var vv=null; visits.forEach(function(x){if(x.id===id)vv=x;}); if(vv) syncToSheet(sheetPayload(vv,'checkout')); if(v0){ fCampus=v0.campus||'141-D'; setSeg('fCampusSeg', fCampus); fRating=0; $('fComment').value=''; $('fName').value=v0.name||''; showScreen('feedback'); } }
+function checkout(id){ var v0=null; visits.forEach(function(v){ if(v.id===id) v0=v; }); var cardRet=true, nicRet=true; if(v0&&v0.cardNumber){ cardRet=confirm('Visitor card '+v0.cardNumber+' returned?\n\nOK = Returned\nCancel = NOT returned'); } if(v0&&v0.nicHeld){ nicRet=confirm("Guest's NIC / ID card returned?\n\nOK = Returned\nCancel = NOT returned"); } visits=visits.map(function(v){return v.id===id?Object.assign({},v,{checkOut:nowISO(), cardReturned:(v.cardNumber?cardRet:null), nicReturned:(v.nicHeld?nicRet:null)}):v;}); store.set('disrupt_visits',visits); toast('Visit complete \u2014 '+(v0?v0.name:'guest')+' checked out'); renderRecords(); var vv=null; visits.forEach(function(x){if(x.id===id)vv=x;}); if(vv) syncToSheet(sheetPayload(vv,'checkout')); if(v0){ fCampus=v0.campus||'141-D'; setSeg('fCampusSeg', fCampus); fRating=0; $('fComment').value=''; $('fCode').value=''; showScreen('feedback'); } }
 function forget(phone){ delete guests[phone]; store.set('disrupt_guests',guests); toast('Recurring guest removed'); renderRecords(); }
 function advance(id){ couriers=couriers.map(function(c){return c.id===id?Object.assign({},c,{status:c.direction==='inbound'?'Handed over':'Collected by courier'}):c;}); store.set('disrupt_couriers',couriers); toast('Courier status updated'); renderRecords(); }
 
@@ -694,8 +701,8 @@ function renderStars(){ var s=''; for(var i=1;i<=5;i++){ s+='<span data-star="'+
 bindSeg('fCampusSeg', function(b){ fCampus=b.dataset.campus; });
 $('fSubmit').addEventListener('click', function(){
   if(!fRating) return toast('Please tap a star rating','err');
-  var fb={ id:uid(), rating:fRating, comment:val('fComment'), name:val('fName'), campus:fCampus, time:nowISO() }; feedback.unshift(fb); store.set('disrupt_feedback', feedback); syncToSheet({type:'feedback', rating:fb.rating, comment:fb.comment, name:fb.name, campus:fb.campus, time:fb.time});
-  toast('Thank you for your feedback!'); fRating=0; $('fComment').value=''; $('fName').value=''; renderStars(); showScreen('welcome');
+  var fb={ id:uid(), rating:fRating, comment:val('fComment'), code:val('fCode'), campus:fCampus, time:nowISO() }; feedback.unshift(fb); store.set('disrupt_feedback', feedback); syncToSheet({type:'feedback', rating:fb.rating, comment:fb.comment, code:fb.code, campus:fb.campus, time:fb.time});
+  toast('Thank you for your feedback!'); fRating=0; $('fComment').value=''; $('fCode').value=''; renderStars(); showScreen('welcome');
 });
 
 /* ---------- ANALYTICS ---------- */
@@ -766,6 +773,35 @@ function resetGuestTabs(){ if(!$('gtabNew')) return; $('gtabNew').classList.add(
 $('gtabNew').addEventListener('click', resetGuestTabs);
 $('gtabOnsite').addEventListener('click', function(){ $('gtabOnsite').classList.add('on'); $('gtabNew').classList.remove('on'); $('guestOnsite').classList.remove('hidden'); $('guestNew').classList.add('hidden'); renderOnsite(); });
 $('onsiteSearch').addEventListener('input', renderOnsite);
+
+
+/* ---------- voice (speech-to-text) input on manual entry fields ---------- */
+function enableVoiceInput(id){
+  var el=document.getElementById(id); if(!el) return;
+  var wrap=el.parentElement;
+  if(!wrap || !wrap.classList.contains('icon-wrap')){
+    wrap=document.createElement('div'); wrap.className='voice-wrap';
+    el.parentNode.insertBefore(wrap, el); wrap.appendChild(el);
+  } else { wrap.classList.add('has-voice'); }
+  var btn=document.createElement('button');
+  btn.type='button'; btn.className='voice-btn'; btn.title='Speak to fill this field';
+  btn.innerHTML='\uD83C\uDF99\uFE0F';
+  wrap.appendChild(btn);
+  btn.addEventListener('click', function(){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){ toast('Voice input not supported in this browser','err'); return; }
+    var rec=new SR(); rec.lang='en-US'; rec.interimResults=false; rec.maxAlternatives=1;
+    btn.classList.add('listening');
+    rec.onresult=function(e){ var text=(e.results[0][0].transcript||'').trim(); if(text){ el.value=text; el.dispatchEvent(new Event('input',{bubbles:true})); el.focus(); } };
+    rec.onerror=function(){ toast('Could not hear that \u2014 try again','err'); };
+    rec.onend=function(){ btn.classList.remove('listening'); };
+    try{ rec.start(); }catch(e){ btn.classList.remove('listening'); }
+  });
+}
+['gName','gPhone','gCnic','gMeet','gPurpose','gCard','eId',
+ 'cCompany','cTrack','cParty','cRecipient','cBy','cNote',
+ 'fComment','fCode','aCode','aName','aBU','aLoc','aSearch',
+ 'onsiteSearch','recQuery'].forEach(enableVoiceInput);
 
 showScreen('welcome');
 </script>
