@@ -463,7 +463,7 @@ function postSheet(url,payload){ try{ fetch(url,{method:'POST',mode:'no-cors',he
 function syncToSheet(payload){ if(sheetUrl) postSheet(sheetUrl,payload); }
 function cardStatusText(v){ if(!v.cardNumber) return 'no card'; if(!v.checkOut) return 'issued ('+v.cardNumber+')'; return (v.cardReturned===false?'NOT returned':'returned')+' ('+v.cardNumber+')'; }
 function nicStatusText(v){ if(!v.nicHeld) return 'not held'; if(!v.checkOut) return 'held'; return v.nicReturned===false?'NOT returned':'returned'; }
-function sheetPayload(v,action){ return { type:'guest', action:action, name:v.name, cnic:v.cnic, phone:v.phone, personToMeet:v.personToMeet, purpose:v.purpose, campus:v.campus, cardNumber:v.cardNumber, cardStatus:cardStatusText(v), nicStatus:nicStatusText(v), checkIn:(v.checkIn?fmt(v.checkIn):''), checkOut:(v.checkOut?fmt(v.checkOut):''), nicPhoto:(action==='entry'?(v.nicPhoto||''):'') }; }
+function sheetPayload(v,action){ return { type:'guest', action:action, id:v.id, name:v.name, cnic:v.cnic, phone:v.phone, personToMeet:v.personToMeet, purpose:v.purpose, campus:v.campus, cardNumber:v.cardNumber, cardStatus:cardStatusText(v), nicStatus:nicStatusText(v), checkIn:(v.checkIn?fmt(v.checkIn):''), checkOut:(v.checkOut?fmt(v.checkOut):''), nicPhoto:(action==='entry'?(v.nicPhoto||''):'') }; }
 
 /* working employee list (seeded from embedded data, editable via Admin) */
 var EMP = store.get('disrupt_employees_v2', null);
