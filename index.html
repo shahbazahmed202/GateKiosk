@@ -463,7 +463,7 @@ function postSheet(url,payload){ try{ fetch(url,{method:'POST',mode:'no-cors',he
 function syncToSheet(payload){ if(sheetUrl) postSheet(sheetUrl,payload); }
 function cardStatusText(v){ if(!v.cardNumber) return 'no card'; if(!v.checkOut) return 'issued ('+v.cardNumber+')'; return (v.cardReturned===false?'NOT returned':'returned')+' ('+v.cardNumber+')'; }
 function nicStatusText(v){ if(!v.nicHeld) return 'not held'; if(!v.checkOut) return 'held'; return v.nicReturned===false?'NOT returned':'returned'; }
-function sheetPayload(v,action){ return { type:'guest', action:action, name:v.name, cnic:v.cnic, phone:v.phone, personToMeet:v.personToMeet, purpose:v.purpose, campus:v.campus, cardNumber:v.cardNumber, cardStatus:cardStatusText(v), nicStatus:nicStatusText(v), checkIn:v.checkIn||'', checkOut:v.checkOut||'', nicPhoto:(action==='entry'?(v.nicPhoto||''):'') }; }
+function sheetPayload(v,action){ return { type:'guest', action:action, name:v.name, cnic:v.cnic, phone:v.phone, personToMeet:v.personToMeet, purpose:v.purpose, campus:v.campus, cardNumber:v.cardNumber, cardStatus:cardStatusText(v), nicStatus:nicStatusText(v), checkIn:(v.checkIn?fmt(v.checkIn):''), checkOut:(v.checkOut?fmt(v.checkOut):''), nicPhoto:(action==='entry'?(v.nicPhoto||''):'') }; }
 
 /* working employee list (seeded from embedded data, editable via Admin) */
 var EMP = store.get('disrupt_employees_v2', null);
@@ -524,7 +524,7 @@ $('eAuthorize').addEventListener('click', function(){
   if(!empMatch) return toast('No employee record selected','err');
   var code=$('eId').value.trim();
   var entry={ id:uid(), code:code, name:empMatch.n, bu:empMatch.b, campus:empCampus, reason:empReason, time:nowISO() };
-  empEntries.unshift(entry); store.set('disrupt_emp_entries', empEntries); syncToSheet({type:'employee', code:code, name:empMatch.n, bu:empMatch.b, reason:empReason, campus:empCampus, time:entry.time});
+  empEntries.unshift(entry); store.set('disrupt_emp_entries', empEntries); syncToSheet({type:'employee', code:code, name:empMatch.n, bu:empMatch.b, reason:empReason, campus:empCampus, time:fmt(entry.time)});
   toast('Entry authorized \u2014 '+empMatch.n);
   resetEmp(); empReason=null; document.querySelectorAll('#empReasonBtns button').forEach(function(x){x.classList.remove('sel');}); showScreen('welcome');
 });
@@ -591,7 +591,7 @@ $('cSubmit').addEventListener('click', function(){
   var company=val('cCompany'), party=val('cParty');
   if(!company)return toast('Enter the courier company','err'); if(!party)return toast(cDir==='inbound'?'Enter the sender':'Enter the destination','err');
   var item={ id:uid(), campus:cCampus, direction:cDir, company:company, tracking:val('cTrack'), party:party, recipient:val('cRecipient'), receivedBy:val('cBy'), note:val('cNote'), dateTime:nowISO(), status:cDir==='inbound'?'At front desk':'Dispatched' };
-  couriers.unshift(item); store.set('disrupt_couriers', couriers); syncToSheet({type:'courier', direction:item.direction, company:item.company, tracking:item.tracking, party:item.party, recipient:item.recipient, receivedBy:item.receivedBy, note:item.note, status:item.status, campus:item.campus, time:item.dateTime});
+  couriers.unshift(item); store.set('disrupt_couriers', couriers); syncToSheet({type:'courier', direction:item.direction, company:item.company, tracking:item.tracking, party:item.party, recipient:item.recipient, receivedBy:item.receivedBy, note:item.note, status:item.status, campus:item.campus, time:fmt(item.dateTime)});
   toast(cDir==='inbound'?'Parcel logged':'Outbound courier logged'); ['cCompany','cTrack','cParty','cRecipient','cBy','cNote'].forEach(function(id){$(id).value='';});
 });
 
@@ -731,7 +731,7 @@ function renderStars(){ var s=''; for(var i=1;i<=5;i++){ s+='<span data-star="'+
 bindSeg('fCampusSeg', function(b){ fCampus=b.dataset.campus; });
 $('fSubmit').addEventListener('click', function(){
   if(!fRating) return toast('Please tap a star rating','err');
-  var fb={ id:uid(), rating:fRating, comment:val('fComment'), campus:fCampus, time:nowISO() }; feedback.unshift(fb); store.set('disrupt_feedback', feedback); syncToSheet({type:'feedback', rating:fb.rating, comment:fb.comment, campus:fb.campus, time:fb.time});
+  var fb={ id:uid(), rating:fRating, comment:val('fComment'), campus:fCampus, time:nowISO() }; feedback.unshift(fb); store.set('disrupt_feedback', feedback); syncToSheet({type:'feedback', rating:fb.rating, comment:fb.comment, campus:fb.campus, time:fmt(fb.time)});
   toast('Thank you for your feedback!'); fRating=0; $('fComment').value=''; renderStars(); showScreen('welcome');
 });
 
